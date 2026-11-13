@@ -6,6 +6,9 @@ use App\Http\Controllers\Admin\ManageController;
 use App\Http\Controllers\Admin\TicketAdminController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Admin\ChatAdminController;
+use App\Http\Controllers\Admin\FileStore;
+use App\Http\Controllers\Admin\ResourceController;
+use App\Http\Controllers\PortalController;
 use App\Http\Controllers\BillingController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\PublicController;
@@ -55,6 +58,16 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
     Route::post('/chat/messages', [ChatController::class, 'send']);
     Route::post('/chat/close', [ChatController::class, 'close']);
 
+    Route::get('/my/orders', [PortalController::class, 'orders']);
+    Route::get('/my/quotes', [PortalController::class, 'quotes']);
+    Route::get('/my/projects', [PortalController::class, 'projects']);
+    Route::get('/my/licenses', [PortalController::class, 'licenses']);
+    Route::post('/my/milestones/{id}/approve', [PortalController::class, 'approve']);
+    Route::post('/my/milestones/{id}/request-changes', [PortalController::class, 'requestChanges']);
+    Route::get('/my/files', [PortalController::class, 'files']);
+    Route::post('/my/files', [PortalController::class, 'uploadFile']);
+    Route::get('/my/files/{id}/download', [PortalController::class, 'download']);
+
     // Staff and admin
     Route::prefix('admin')->middleware('role:staff,admin')->group(function () {
         Route::get('/tickets', [TicketAdminController::class, 'index']);
@@ -77,6 +90,13 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
         Route::get('/chat/{id}', [ChatAdminController::class, 'show']);
         Route::post('/chat/{id}/messages', [ChatAdminController::class, 'send']);
         Route::post('/chat/{id}/close', [ChatAdminController::class, 'close']);
+
+        Route::get('/r/{res}', [ResourceController::class, 'index']);
+        Route::post('/r/{res}', [ResourceController::class, 'store']);
+        Route::put('/r/{res}/{id}', [ResourceController::class, 'update']);
+        Route::get('/files', [ResourceController::class, 'files']);
+        Route::post('/files', [ResourceController::class, 'uploadFile']);
+        Route::get('/files/{id}/download', fn (int $id) => FileStore::download($id, null));
 
         Route::get('/users', [ManageController::class, 'users']);
         Route::post('/users/{id}/grant', [ManageController::class, 'grant']);

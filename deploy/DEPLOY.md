@@ -1,7 +1,8 @@
 # ModinaLink: Hostinger VPS (Docker + Traefik) ডিপ্লয়
 
 সার্ভার: srv2094141.hstgr.cloud (187.53.139.216), ডোমেইন: modinalink.com
-এই কোড এখনো কোনো সার্ভারে চালানো হয়নি। প্রথম চালুর সময় `docker compose logs` দেখুন।
+বর্তমান ডিপ্লয়: `deploy/run-api.sh` ও `deploy/run-web.sh` রানটাইম স্ক্রিপ্ট GitHub `main` থেকে কোড নামিয়ে ইনস্টল/মাইগ্রেট/বিল্ড করে। কোড বদলালে Hostinger-এ `modinalink` Docker প্রজেক্ট Restart দিন (ওয়েব বিল্ডে ~৪ মিনিট)। নিচের ধাপগুলো পুরোনো ম্যানুয়াল পদ্ধতি; এখন লাগে না।
+ফাইল আপলোড সার্ভারের `storage/app/files/` এ থাকে; ব্যাকআপে এটা রাখুন।
 
 ## 1. DNS
 modinalink.com ও www এর A রেকর্ড → 187.53.139.216। DNS ছড়ানোর পরে SSL আসবে।

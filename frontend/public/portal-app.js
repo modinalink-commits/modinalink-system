@@ -81,28 +81,24 @@
   function portal() {
     nav({ 'ওভারভিউ': '/portal', Overview: '/portal', Invoices: '/portal/invoices', Payments: '/portal/invoices', 'Support Tickets': '/portal/tickets/new', 'Subscription ও Renewals': '/portal/subscriptions' });
     logoutLink();
-    var me = api('/me'), tk = api('/tickets'), iv = api('/invoices'), sb = api('/subscriptions');
-    Promise.all([me, tk, iv, sb]).then(function (r) {
+    var me = api('/me'), tk = api('/tickets'), iv = api('/invoices'), sb = api('/subscriptions'), pj = api('/my/projects');
+    Promise.all([me, tk, iv, sb, pj]).then(function (r) {
       var user = (r[0].j && r[0].j.user) || {}, tickets = rows(r[1]), invs = rows(r[2]), subs = rows(r[3]);
       chatWidget(user);
+      var projs = Array.isArray(r[4].j) ? r[4].j : [];
       var sub = leaf('div', 'আপনার অথবা অনুমোদিত প্রতিষ্ঠানের তথ্য। নিচের সব তথ্য নমুনা (Sample data)।') || byText('div', 'আপনার অথবা অনুমোদিত প্রতিষ্ঠানের তথ্য', true);
-      if (sub) sub.textContent = (user.name || '') + (user.company ? ' · ' + user.company : '') + ' — আপনার অ্যাকাউন্টের আসল তথ্য। প্রজেক্ট, মাইলস্টোন ও ফাইল মডিউল এখনো চালু হয়নি।';
+      if (sub) sub.textContent = (user.name || '') + (user.company ? ' · ' + user.company : '') + ' — আপনার অ্যাকাউন্টের আসল তথ্য।';
 
       function kpi(label, val) { var l = leaf('div', label); if (l && l.nextElementSibling) l.nextElementSibling.textContent = val; }
       var due = invs.filter(function (i) { return i.status === 'issued'; });
-      kpi('চলমান প্রজেক্ট', '—'); kpi('অনুমোদনের অপেক্ষায়', '—');
+      kpi('চলমান প্রজেক্ট', String(projs.filter(function (p) { return p.status === 'in_progress'; }).length)); kpi('অনুমোদনের অপেক্ষায়', String(awaiting(projs).length));
       kpi('বকেয়া ইনভয়েস', String(due.length));
       var next = subs.filter(function (s) { return s.status === 'active'; })[0];
       kpi('রিনিউয়াল', next ? dt(next.renews_on) : '—');
 
-      var projTitle = leaf('div', '[প্রজেক্টের নাম] — মাইলস্টোন');
-      if (projTitle) { var pc = projTitle.parentNode.parentNode; pc.textContent = ''; var h = document.createElement('div'); h.style.cssText = 'font-size:17px;font-weight:700'; h.textContent = 'প্রজেক্ট ও মাইলস্টোন'; pc.appendChild(h); soon(pc, 'প্রজেক্ট ও মাইলস্টোন ট্র্যাকিং এখনো চালু হয়নি। চালু হলে এখানে ধাপে ধাপে অগ্রগতি দেখাবে।'); }
-      var apTitle = leaf('div', 'আপনার অনুমোদন প্রয়োজন');
-      if (apTitle) soon(apTitle.parentNode, 'কোনো অনুমোদনের অনুরোধ নেই। অনুমোদন মডিউল চালু হলে এখানে আসবে।');
-      if (apTitle) { var h2 = document.createElement('div'); h2.style.cssText = 'font-size:17px;font-weight:700'; h2.textContent = 'অনুমোদন'; apTitle.parentNode.insertBefore(h2, apTitle.parentNode.firstChild); apTitle.remove(); }
-      var au = leaf('div', 'Automation Status');
-      if (au) soon(au.parentNode, 'অটোমেশন রান এখনো চালু হয়নি।');
-
+      var projTitle = leaf('div', '[প্রজেক্টের নাম] — মাইলস্টোন'), apTitle = leaf('div', 'আপনার অনুমোদন প্রয়োজন'), au = leaf('div', 'Automation Status');
+      if (projTitle) PV.ovProject = projTitle.parentNode.parentNode; if (apTitle) PV.ovApprove = apTitle.parentNode; if (au) PV.ovAuto = au.parentNode;
+      portalViews(user, projs);
       /* invoices */
       var card = leaf('div', 'ইনভয়েস ও পেমেন্ট');
       if (card) {
@@ -197,6 +193,90 @@
     press(send, function () { submit(false); }); press(human, function () { submit(true); });
   }
 
+  /* ------------------------ PORTAL: sections ------------------------ */
+  var PV = {};
+  function awaiting(projs) { var o = []; projs.forEach(function (p) { (p.milestones || []).forEach(function (m) { if (m.status === 'awaiting_client') o.push({ p: p, m: m }); }); }); return o; }
+  function portalViews(user, projs) {
+    function T(tag, css, text) { var e = document.createElement(tag); if (css) e.style.cssText = css; if (text != null) e.textContent = text; return e; }
+    var CARD = 'background:#FFFFFF;border:1px solid #E2E8F0;border-radius:16px;padding:24px';
+    var BTN = 'border:1px solid #CBD5E1;border-radius:10px;padding:0 14px;min-height:44px;font-size:14px;font-weight:600;background:#fff;color:#0F172A;cursor:pointer;font-family:inherit';
+    var PRI = 'background:#FF7900;color:#26272B;border:0;border-radius:10px;padding:0 16px;min-height:44px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit';
+    var IN = 'width:100%;box-sizing:border-box;min-height:44px;border:1px solid #CBD5E1;border-radius:12px;padding:0 12px;font-size:14px;font-family:inherit;background:#fff';
+    function chip(st) { var c = T('span', 'display:inline-flex;gap:6px;align-items:center;font-size:12px;font-weight:600'); c.appendChild(T('span', 'width:8px;height:8px;border-radius:999px;background:' + (DOT[st] || (st === 'completed' ? '#16A34A' : st === 'awaiting_client' ? '#F59E0B' : '#94A3B8')))); c.appendChild(document.createTextNode(st)); return c; }
+    function empty(t) { return T('div', 'font-size:14px;color:#475569;line-height:1.7', t); }
+    function card(title) { var c = T('div', CARD + ';display:flex;flex-direction:column;gap:12px'); if (title) c.appendChild(T('div', 'font-size:17px;font-weight:700', title)); return c; }
+    function msRow(m) { var r = T('div', 'display:flex;gap:12px;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #F1F5F9;font-size:14px;flex-wrap:wrap'); var l = T('div'); l.appendChild(T('div', 'font-weight:600', m.title)); l.appendChild(T('div', 'font-size:12px;color:#475569', (m.due_date ? 'শেষ তারিখ: ' + dt(m.due_date) : 'তারিখ ঠিক হয়নি') + (m.approved_at ? ' · অনুমোদিত ' + dt(m.approved_at) : '') + (m.client_note ? ' · আপনার নোট: ' + m.client_note : ''))); r.appendChild(l); r.appendChild(chip(m.status)); return r; }
+    function projectBlock(p) {
+      var b = T('div', 'display:flex;flex-direction:column;gap:6px'); var h = T('div', 'display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap'); h.appendChild(T('div', 'font-size:16px;font-weight:700', p.name)); h.appendChild(chip(p.status)); b.appendChild(h);
+      var bar = T('div', 'height:8px;border-radius:999px;background:#E2E8F0;overflow:hidden'); bar.setAttribute('role', 'progressbar'); bar.setAttribute('aria-label', 'অগ্রগতি'); bar.setAttribute('aria-valuenow', p.progress); bar.setAttribute('aria-valuemin', 0); bar.setAttribute('aria-valuemax', 100); bar.appendChild(T('div', 'height:100%;background:#FF7900;width:' + p.progress + '%')); b.appendChild(bar);
+      if (!(p.milestones || []).length) b.appendChild(empty('এখনো কোনো মাইলস্টোন যোগ হয়নি।')); (p.milestones || []).forEach(function (m) { b.appendChild(msRow(m)); }); return b;
+    }
+    function approvalRow(x, done) {
+      var r = T('div', 'border:1px solid #E2E8F0;border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:8px');
+      r.appendChild(T('div', 'font-weight:700;font-size:15px', x.m.title + ' — ' + x.p.name)); r.appendChild(T('div', 'font-size:13px;color:#475569;line-height:1.6', 'অনুমোদনের পর পরের ধাপ শুরু হবে। অনুমোদনের ইতিহাস সংরক্ষিত থাকে।'));
+      var note = T('input', IN); note.type = 'text'; note.placeholder = 'পরিবর্তন চাইলে এখানে লিখুন'; note.setAttribute('aria-label', 'পরিবর্তনের নোট'); note.maxLength = 500; r.appendChild(note);
+      var msg = T('div', 'font-size:13px;font-weight:600;display:none'); msg.setAttribute('role', 'status');
+      var row = T('div', 'display:flex;gap:8px;flex-wrap:wrap'); var ok = T('button', PRI, 'অনুমোদন করুন'), ch = T('button', BTN, 'পরিবর্তন চান'); ok.type = ch.type = 'button'; row.appendChild(ok); row.appendChild(ch); r.appendChild(row); r.appendChild(msg);
+      function go(path, body) { ok.disabled = ch.disabled = true; api(path, { method: 'POST', body: body }).then(function (res) { if (res.ok) done(); else { ok.disabled = ch.disabled = false; msg.style.cssText = 'font-size:13px;font-weight:600;color:#B91C1C;display:block'; msg.textContent = (res.j && res.j.message) || 'হয়নি'; } }); }
+      ok.addEventListener('click', function () { go('/my/milestones/' + x.m.id + '/approve'); });
+      ch.addEventListener('click', function () { if (!note.value.trim()) { msg.style.cssText = 'font-size:13px;font-weight:600;color:#B91C1C;display:block'; msg.textContent = 'কী পরিবর্তন চান তা লিখুন।'; return; } go('/my/milestones/' + x.m.id + '/request-changes', { note: note.value.trim() }); });
+      return r;
+    }
+    function tbl(cols, data) {
+      var c = card(); if (!data.length) { c.appendChild(empty('কোনো রেকর্ড নেই।')); return c; } c.style.overflowX = 'auto';
+      var g = T('div', 'display:grid;grid-template-columns:repeat(' + cols.length + ',minmax(110px,1fr));font-size:13px;min-width:' + (cols.length * 120) + 'px'); cols.forEach(function (x) { g.appendChild(T('div', 'padding:10px 12px;font-weight:700;color:#475569;border-bottom:1px solid #E2E8F0', x.h)); });
+      data.forEach(function (r) { cols.forEach(function (x) { var cell = T('div', 'padding:12px;border-bottom:1px solid #F1F5F9;word-break:break-word'); var v = x.v(r); if (v && v.nodeType) cell.appendChild(v); else if (x.s) cell.appendChild(chip(v)); else cell.textContent = v; g.appendChild(cell); }); }); c.appendChild(g); return c;
+    }
+    function blob(path, name) { return fetch('/api' + path, { headers: { Authorization: 'Bearer ' + TOKEN } }).then(function (r) { return r.blob(); }).then(function (b) { var a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = name; document.body.appendChild(a); a.click(); a.remove(); }); }
+
+    /* overview cards on the dashboard */
+    if (PV.ovProject) {
+      var pc = PV.ovProject; pc.textContent = ''; var act = projs.filter(function (p) { return p.status === 'in_progress'; })[0] || projs[0];
+      pc.appendChild(T('div', 'font-size:17px;font-weight:700;margin-bottom:8px', 'প্রজেক্ট ও মাইলস্টোন')); pc.appendChild(act ? projectBlock(act) : empty('এখনো কোনো প্রজেক্ট শুরু হয়নি। কোটেশন গৃহীত হলে প্রজেক্ট এখানে দেখাবে।'));
+    }
+    if (PV.ovApprove) {
+      var ac = PV.ovApprove; ac.textContent = ''; ac.appendChild(T('div', 'font-size:17px;font-weight:700;margin-bottom:8px', 'আপনার অনুমোদন প্রয়োজন'));
+      var aw = awaiting(projs); if (!aw.length) ac.appendChild(empty('এই মুহূর্তে কোনো অনুমোদনের অনুরোধ নেই।')); aw.forEach(function (x) { ac.appendChild(approvalRow(x, function () { location.reload(); })); });
+    }
+    if (PV.ovAuto) { var uc = PV.ovAuto; uc.textContent = ''; uc.appendChild(T('div', 'font-size:17px;font-weight:700;margin-bottom:8px', 'Automation Status')); uc.appendChild(empty('আপনার অ্যাকাউন্টে কোনো অটোমেশন সক্রিয় নেই। সক্রিয় হলে সর্বশেষ রান ও ফলাফল এখানে দেখাবে।')); }
+
+    /* section switching */
+    var h1 = document.querySelector('h1'); if (!h1) return; var head = h1.parentNode, col = head.parentNode;
+    var dash = Array.prototype.slice.call(col.children).filter(function (x) { return x !== head; });
+    var sub = head.lastElementChild; var view = T('div', 'display:none;flex-direction:column;gap:16px'); col.appendChild(view);
+    var VIEWS = {
+      orders: ['My Orders', function () { return Promise.all([api('/my/orders'), api('/my/quotes')]).then(function (r) { var b = T('div', 'display:flex;flex-direction:column;gap:16px'); b.appendChild(T('div', 'font-size:17px;font-weight:700', 'কোটেশন')); b.appendChild(tbl([{ h: '#', v: function (x) { return 'QUO-' + x.id; } }, { h: 'শিরোনাম', v: function (x) { return x.title; } }, { h: 'পরিমাণ', v: function (x) { return bdt(x.amount_bdt); } }, { h: 'অবস্থা', v: function (x) { return x.status; }, s: 1 }], r[1].j || [])); b.appendChild(T('div', 'font-size:17px;font-weight:700', 'অর্ডার')); b.appendChild(tbl([{ h: '#', v: function (x) { return 'ORD-' + x.id; } }, { h: 'কাজ', v: function (x) { return x.title; } }, { h: 'পরিমাণ', v: function (x) { return bdt(x.amount_bdt); } }, { h: 'অবস্থা', v: function (x) { return x.status; }, s: 1 }], r[0].j || [])); return b; }); }],
+      projects: ['My Projects', function () { return Promise.resolve((function () { var b = T('div', 'display:flex;flex-direction:column;gap:16px'); if (!projs.length) { var ec = card(); ec.appendChild(empty('এখনো কোনো প্রজেক্ট নেই।')); b.appendChild(ec); } projs.forEach(function (p) { var c = card(); c.appendChild(projectBlock(p)); b.appendChild(c); }); return b; })()); }],
+      milestones: ['Milestones', function () { var all_ = []; projs.forEach(function (p) { (p.milestones || []).forEach(function (m) { all_.push(Object.assign({ pname: p.name }, m)); }); }); return Promise.resolve(tbl([{ h: 'প্রজেক্ট', v: function (m) { return m.pname; } }, { h: 'ধাপ', v: function (m) { return m.title; } }, { h: 'শেষ তারিখ', v: function (m) { return dt(m.due_date); } }, { h: 'অবস্থা', v: function (m) { return m.status; }, s: 1 }], all_)); }],
+      approvals: ['Approvals', function () { var b = T('div', 'display:flex;flex-direction:column;gap:12px'); var aw = awaiting(projs); if (!aw.length) { var ec = card(); ec.appendChild(empty('কোনো অনুমোদনের অনুরোধ নেই।')); b.appendChild(ec); } aw.forEach(function (x) { var c = card(); c.appendChild(approvalRow(x, function () { location.reload(); })); b.appendChild(c); }); var done = []; projs.forEach(function (p) { (p.milestones || []).forEach(function (m) { if (m.approved_at) done.push(Object.assign({ pname: p.name }, m)); }); }); b.appendChild(T('div', 'font-size:17px;font-weight:700;margin-top:8px', 'অনুমোদনের ইতিহাস')); b.appendChild(tbl([{ h: 'প্রজেক্ট', v: function (m) { return m.pname; } }, { h: 'ধাপ', v: function (m) { return m.title; } }, { h: 'অনুমোদনের তারিখ', v: function (m) { return dt(m.approved_at); } }], done)); return Promise.resolve(b); }],
+      files: ['Files', function () { return api('/my/files').then(function (r) { var b = T('div', 'display:flex;flex-direction:column;gap:16px');
+        var f = card('ফাইল পাঠান (সর্বোচ্চ ১০ MB)'); var fm = T('form', 'display:flex;gap:8px;flex-wrap:wrap;align-items:center'); var fi = T('input', IN + ';flex:1 1 240px;padding-top:9px'); fi.type = 'file'; fi.required = true; fi.setAttribute('aria-label', 'ফাইল'); var up = T('button', PRI, 'আপলোড'); up.type = 'submit'; fm.appendChild(fi); fm.appendChild(up); var m = T('div', 'font-size:13px;font-weight:600;color:#B91C1C;display:none'); m.setAttribute('role', 'alert'); f.appendChild(fm); f.appendChild(m);
+        fm.addEventListener('submit', function (e) { e.preventDefault(); var fd = new FormData(); fd.append('file', fi.files[0]); up.disabled = true; fetch('/api/my/files', { method: 'POST', headers: { Accept: 'application/json', Authorization: 'Bearer ' + TOKEN }, body: fd }).then(function (x) { return x.json().then(function (j) { return { ok: x.ok, j: j }; }); }).then(function (x) { up.disabled = false; if (x.ok) go('files'); else { var k = x.j.errors && Object.keys(x.j.errors)[0]; m.textContent = k ? x.j.errors[k][0] : (x.j.message || 'আপলোড হয়নি'); m.style.display = 'block'; } }); });
+        b.appendChild(f); b.appendChild(tbl([{ h: 'ফাইল', v: function (x) { return x.name; } }, { h: 'সাইজ', v: function (x) { return Math.round(x.size / 1024) + ' KB'; } }, { h: 'তারিখ', v: function (x) { return dt(x.created_at); } }, { h: 'ডাউনলোড', v: function (x) { var bt = T('button', BTN, 'ডাউনলোড'); bt.type = 'button'; bt.addEventListener('click', function () { blob('/my/files/' + x.id + '/download', x.name); }); return bt; } }], r.j || [])); return b; }); }],
+      licenses: ['Products ও Licenses', function () { return api('/my/licenses').then(function (r) { return tbl([{ h: 'প্রোডাক্ট', v: function (x) { return x.product_name; } }, { h: 'লাইসেন্স কী', v: function (x) { return x.license_key; } }, { h: 'অবস্থা', v: function (x) { return x.status; }, s: 1 }, { h: 'মেয়াদ', v: function (x) { return dt(x.expires_on); } }], r.j || []); }); }],
+      auto: ['Automation Status', function () { var c = card(); c.appendChild(empty('আপনার অ্যাকাউন্টে কোনো অটোমেশন সক্রিয় নেই।')); return Promise.resolve(c); }],
+      profile: ['Profile', function () { var c = card('প্রোফাইল'); var fm = T('form', 'display:flex;flex-direction:column;gap:12px;max-width:420px'); function fld(id, l, v, ro) { var w = T('div'); var lb = T('label', 'display:block;font-size:13px;font-weight:600;margin-bottom:4px', l); lb.htmlFor = id; var i = T('input', IN); i.id = id; i.value = v || ''; if (ro) { i.readOnly = true; i.style.background = '#F1F5F9'; } w.appendChild(lb); w.appendChild(i); fm.appendChild(w); return i; }
+        var nm = fld('pf-n', 'নাম', user.name), co = fld('pf-c', 'প্রতিষ্ঠান', user.company); fld('pf-e', 'ইমেইল (বদলাতে সাপোর্টে লিখুন)', user.email, 1); fld('pf-p', 'ফোন', user.phone, 1);
+        var m = T('div', 'font-size:14px;font-weight:600;display:none'); m.setAttribute('role', 'status'); var sv = T('button', PRI + ';align-self:flex-start', 'সংরক্ষণ করুন'); sv.type = 'submit'; fm.appendChild(sv); fm.appendChild(m);
+        fm.addEventListener('submit', function (e) { e.preventDefault(); api('/me', { method: 'PATCH', body: { name: nm.value.trim(), company: co.value.trim() || null } }).then(function (r) { m.style.display = 'block'; m.style.color = r.ok ? '#166534' : '#B91C1C'; m.textContent = r.ok ? 'সংরক্ষিত হয়েছে।' : 'সংরক্ষণ হয়নি।'; }); });
+        c.appendChild(fm); return Promise.resolve(c); }]
+    };
+    var NAV = { 'My Orders': 'orders', 'My Projects': 'projects', Milestones: 'milestones', Approvals: 'approvals', Files: 'files', 'Products ও Licenses': 'licenses', 'Automation Status': 'auto', Profile: 'profile' };
+    function setActive(a) { Array.prototype.slice.call(document.querySelectorAll('a[data-pnav]')).forEach(function (x) { x.style.fontWeight = x === a ? '700' : ''; }); }
+    var cur = null;
+    function go(key, a) {
+      var d = VIEWS[key]; h1.textContent = d[0]; if (sub) sub.style.display = 'none'; dash.forEach(function (x) { x.style.display = 'none'; }); view.style.display = 'flex'; view.textContent = 'লোড হচ্ছে…'; if (a) setActive(a);
+      d[1]().then(function (n) { view.textContent = ''; view.appendChild(n); }).catch(function () { view.textContent = 'লোড করা যায়নি।'; });
+    }
+    function home(a) { h1.textContent = 'ওভারভিউ'; if (sub) sub.style.display = ''; view.style.display = 'none'; dash.forEach(function (x) { x.style.display = ''; }); setActive(a); }
+    Array.prototype.slice.call(document.querySelectorAll('a')).forEach(function (a) {
+      var t = norm(a.textContent);
+      if (NAV[t]) { a.setAttribute('data-pnav', '1'); a.removeAttribute('aria-disabled'); a.removeAttribute('title'); a.style.opacity = '1'; a.href = '#' + NAV[t]; a.addEventListener('click', function (e) { e.preventDefault(); go(NAV[t], a); }); }
+      else if (t === 'ওভারভিউ' || t === 'Overview') { a.setAttribute('data-pnav', '1'); a.addEventListener('click', function (e) { e.preventDefault(); home(a); }); }
+    });
+    if (NAV[location.hash.slice(1)] === undefined) { var k = Object.keys(NAV).filter(function (x) { return NAV[x] === location.hash.slice(1); })[0]; if (k) go(NAV[k]); }
+  }
+
   /* ---------------------------- PORTAL: live chat ---------------------------- */
   function chatWidget(user) {
     function T(tag, css, text) { var e = document.createElement(tag); if (css) e.style.cssText = css; if (text != null) e.textContent = text; return e; }
@@ -276,13 +356,13 @@
   function admin() {
     nav({ 'ড্যাশবোর্ড': '/admin', Dashboard: '/admin', Invoices: '/admin/invoices', Payments: '/admin/payments', Settings: '/admin/integrations', 'Support Tickets': '#board', Inquiries: '#list' });
     logoutLink();
-    Promise.all([api('/me'), api('/admin/tickets'), api('/admin/leads'), api('/admin/invoices'), api('/admin/subscriptions'), api('/admin/audit')]).then(function (r) {
+    Promise.all([api('/me'), api('/admin/tickets'), api('/admin/leads'), api('/admin/invoices'), api('/admin/subscriptions'), api('/admin/audit'), api('/admin/r/quotes'), api('/admin/r/projects'), api('/admin/r/milestones'), api('/admin/r/automation_runs')]).then(function (r) {
       var user = (r[0].j && r[0].j.user) || {};
       if (user.role === 'customer') { location.replace('/portal'); return; }
       var tickets = rows(r[1]), leads = rows(r[2]), invs = rows(r[3]), subs = rows(r[4]);
 
       var who = leaf('span', '[অ্যাডমিনের নাম] · Owner'); if (who) who.textContent = (user.name || '') + ' · ' + (user.role === 'admin' ? 'Owner' : 'Staff');
-      var sub = byText('div', 'অপারেশনস ওভারভিউ', true); if (sub) sub.textContent = 'অপারেশনস ওভারভিউ · আসল ডেটা; “—” = সংশ্লিষ্ট মডিউল এখনো চালু হয়নি';
+      var sub = byText('div', 'অপারেশনস ওভারভিউ', true); if (sub) sub.textContent = 'অপারেশনস ওভারভিউ · আসল ডেটা; সব সংখ্যা আসল রেকর্ড থেকে';
 
       function tile(label, val, href) {
         var l = all('a[href="#list"] div').filter(function (d) { return norm(d.textContent).replace(/^\s*/, '').slice(-label.length) === label && d.children.length <= 1; })[0];
@@ -292,6 +372,11 @@
       tile('Pending inquiry', String(leads.filter(function (l) { return l.status === 'new'; }).length), '#list');
       tile('Open ticket', String(tickets.filter(function (t) { return t.status !== 'closed' && t.status !== 'rejected'; }).length), '#board');
       tile('Payment due', String(invs.filter(function (i) { return i.status === 'issued'; }).length), '/admin/invoices');
+      var arr = function (x) { return Array.isArray(x.j) ? x.j : []; };
+      tile('Quote awaiting response', String(arr(r[6]).filter(function (q) { return q.status === 'sent'; }).length), '#quotes');
+      tile('Active project', String(arr(r[7]).filter(function (q) { return q.status === 'in_progress'; }).length), '#projects');
+      tile('Overdue milestone', String(arr(r[8]).filter(function (m) { return m.status !== 'completed' && m.due_date && new Date(m.due_date).getTime() < Date.now(); }).length), '#milestones');
+      tile('Failed automation', String(arr(r[9]).filter(function (a) { return a.status === 'failed'; }).length), '#automation-runs');
       var soonDate = Date.now() + 30 * 864e5;
       tile('Renewal due', String(subs.filter(function (s) { return s.status === 'active' && new Date(s.renews_on).getTime() <= soonDate; }).length), '/admin/payments');
 
@@ -338,7 +423,7 @@
 
       /* automation */
       var au = leaf('div', 'AI Automation অপারেশনস');
-      if (au) { var ac = au.parentNode; all(':scope > div', ac).slice(2).forEach(function (x) { x.remove(); }); var n = document.createElement('div'); n.style.cssText = 'font-size:14px;color:#475569;line-height:1.7;margin-top:8px'; n.textContent = 'অটোমেশন রান এখনো চালু হয়নি।'; ac.appendChild(n); }
+      if (au) { var ac = au.parentNode; all(':scope > div', ac).slice(2).forEach(function (x) { x.remove(); }); var n = document.createElement('div'); n.style.cssText = 'font-size:14px;color:#475569;line-height:1.7;margin-top:8px'; var runs = arr(r[9]).slice(0, 4); if (!runs.length) { n.textContent = 'এখনো কোনো অটোমেশন রান নেই।'; ac.appendChild(n); } runs.forEach(function (x) { var row = document.createElement('div'); row.style.cssText = 'display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid #F1F5F9;font-size:14px'; var a1 = document.createElement('span'); a1.textContent = x.name; var a2 = document.createElement('span'); a2.style.fontWeight = '600'; a2.textContent = x.status; row.appendChild(a1); row.appendChild(a2); ac.appendChild(row); }); }
 
       /* audit */
       var at = leaf('div', 'অডিট লগ');
@@ -446,8 +531,100 @@
       } },
       services: { t: 'Services ও Price List', load: function () { return fetch('/api/prices', { headers: { Accept: 'application/json' } }).then(function (r) { return r.json(); }).then(function (j) { var it = (j && j.items) || []; var cols = it[0] ? Object.keys(it[0]).filter(function (k) { return !/^(id|created_at|updated_at|sort|is_active)$/.test(k); }).slice(0, 6) : []; return table(cols.map(function (k) { return { h: k, v: function (x) { var v = x[k]; return v == null ? '—' : typeof v === 'object' ? JSON.stringify(v) : String(v); } }; }), it); }); } }
     };
-    var MAP = { Customers: 'customers', Invoices: 'invoices', Payments: 'payments', Renewals: 'renewals', 'Support Tickets': 'tickets', Inquiries: 'inquiries', 'Live Chat': 'chat', Services: 'services', Products: 'services' };
-    var SOON = ['Quotes', 'Orders', 'Projects', 'Milestones', 'Automation Runs', 'Content'];
+
+    function lookups() {
+      return Promise.all([api('/admin/users'), api('/admin/r/projects'), api('/admin/r/products'), api('/admin/r/quotes'), api('/admin/r/orders')]).then(function (r) {
+        return {
+          users: rows(r[0]).map(function (u) { return { v: u.id, l: u.name + (u.company ? ' · ' + u.company : '') }; }),
+          projects: (r[1].j || []).map(function (x) { return { v: x.id, l: x.name }; }),
+          products: (r[2].j || []).map(function (x) { return { v: x.id, l: x.name }; }),
+          quotes: (r[3].j || []).map(function (x) { return { v: x.id, l: '#' + x.id + ' ' + x.title }; }),
+          orders: (r[4].j || []).map(function (x) { return { v: x.id, l: '#' + x.id + ' ' + x.title }; })
+        };
+      });
+    }
+    var IN = 'width:100%;box-sizing:border-box;min-height:44px;border:1px solid #CBD5E1;border-radius:12px;padding:0 12px;font-size:14px;font-family:inherit;background:#fff';
+    function formCard(title, fields, lk, onSubmit) {
+      var card = T('form', CARD + ';display:flex;flex-direction:column;gap:12px'); card.appendChild(T('div', 'font-size:16px;font-weight:700', title));
+      var grid = T('div', 'display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px'); card.appendChild(grid); var ctl = {};
+      fields.forEach(function (f, n) {
+        var w = T('div'); var id = 'f-' + title.replace(/\W/g, '') + n; var l = T('label', 'display:block;font-size:13px;font-weight:600;margin-bottom:4px', f.l + (f.req ? ' *' : '')); l.htmlFor = id; w.appendChild(l);
+        var i;
+        if (f.lk || f.o) { i = T('select', IN); var o0 = T('option', null, f.req ? 'বাছাই করুন' : '— নেই —'); o0.value = ''; i.appendChild(o0); (f.lk ? lk[f.lk] : f.o.map(function (x) { return { v: x, l: x }; })).forEach(function (o) { var op = T('option', null, o.l); op.value = o.v; i.appendChild(op); }); }
+        else if (f.t === 'textarea') { i = T('textarea', IN + ';min-height:88px;padding:10px 12px'); }
+        else { i = T('input', IN); i.type = f.t || 'text'; }
+        i.id = id; if (f.req) i.required = true; ctl[f.k] = i; w.appendChild(i); grid.appendChild(w);
+      });
+      var err = T('div', 'font-size:13px;font-weight:600;color:#B91C1C;display:none'); err.setAttribute('role', 'alert'); card.appendChild(err);
+      var go = T('button', 'background:#FF7900;color:#26272B;border:0;border-radius:12px;min-height:44px;padding:0 18px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;align-self:flex-start', 'সংরক্ষণ করুন'); go.type = 'submit'; card.appendChild(go);
+      card.addEventListener('submit', function (e) {
+        e.preventDefault(); err.style.display = 'none'; var body = {};
+        fields.forEach(function (f) { var v = ctl[f.k].value; if (v !== '') body[f.k] = (f.t === 'number' || f.lk) ? Number(v) : v; });
+        go.disabled = true; onSubmit(body).then(function (r) { go.disabled = false; if (!r.ok) { var j = r.j || {}, k = j.errors && Object.keys(j.errors)[0]; err.textContent = k ? j.errors[k][0] : (j.message || 'হয়নি'); err.style.display = 'block'; } });
+      });
+      return card;
+    }
+    function resView(res, title, cols, fields, statuses, reloadKey) {
+      return { t: title, load: function () {
+        return Promise.all([api('/admin/r/' + res), lookups()]).then(function (x) {
+          var box = T('div', 'display:flex;flex-direction:column;gap:16px');
+          box.appendChild(formCard('নতুন যোগ করুন', fields, x[1], function (body) { return api('/admin/r/' + res, { method: 'POST', body: body }).then(function (r) { if (r.ok) show(reloadKey || res); return r; }); }));
+          box.appendChild(table(cols, x[0].j || [], statuses ? function (row, c) {
+            var sel = T('select', IN + ';min-height:36px;font-size:13px;width:auto'); statuses.forEach(function (st) { var o = T('option', null, st); o.value = st; if (row.status === st) o.selected = true; sel.appendChild(o); });
+            sel.setAttribute('aria-label', 'অবস্থা পরিবর্তন'); sel.addEventListener('change', function () { api('/admin/r/' + res + '/' + row.id, { method: 'PUT', body: { status: sel.value } }).then(function (r) { if (!r.ok) alert_('পরিবর্তন হয়নি'); else show(reloadKey || res); }); }); c.appendChild(sel);
+          } : null));
+          return box;
+        });
+      } };
+    }
+    function who(r) { return r.user_company || r.user_name || '—'; }
+    function sCol(k) { return { h: 'অবস্থা', v: function (r) { return r[k || 'status']; }, s: 1 }; }
+    function blob(path, name) { return fetch('/api' + path, { headers: { Authorization: 'Bearer ' + TOKEN } }).then(function (r) { return r.blob(); }).then(function (b) { var a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = name; document.body.appendChild(a); a.click(); a.remove(); }); }
+    V.quotes = resView('quotes', 'Quotes',
+      [{ h: '#', v: function (r) { return 'QUO-' + r.id; } }, { h: 'গ্রাহক', v: who }, { h: 'শিরোনাম', v: function (r) { return r.title; } }, { h: 'পরিমাণ', v: function (r) { return bdt(r.amount_bdt); } }, sCol(), { h: 'তারিখ', v: function (r) { return dt(r.updated_at); } }],
+      [{ k: 'user_id', l: 'গ্রাহক', lk: 'users' }, { k: 'title', l: 'শিরোনাম', req: 1 }, { k: 'amount_bdt', l: 'পরিমাণ (৳)', t: 'number' }, { k: 'status', l: 'অবস্থা', o: ['draft', 'sent', 'accepted', 'declined'] }, { k: 'notes', l: 'নোট', t: 'textarea' }], ['draft', 'sent', 'accepted', 'declined']);
+    V.orders = resView('orders', 'Orders',
+      [{ h: '#', v: function (r) { return 'ORD-' + r.id; } }, { h: 'গ্রাহক', v: who }, { h: 'কাজ', v: function (r) { return r.title; } }, { h: 'পরিমাণ', v: function (r) { return bdt(r.amount_bdt); } }, sCol()],
+      [{ k: 'user_id', l: 'গ্রাহক', lk: 'users', req: 1 }, { k: 'quote_id', l: 'কোটেশন (গৃহীত)', lk: 'quotes' }, { k: 'title', l: 'কাজ', req: 1 }, { k: 'amount_bdt', l: 'পরিমাণ (৳)', t: 'number' }], ['new', 'in_progress', 'delivered', 'cancelled']);
+    V.projects = resView('projects', 'Projects',
+      [{ h: '#', v: function (r) { return 'PRJ-' + r.id; } }, { h: 'গ্রাহক', v: who }, { h: 'প্রজেক্ট', v: function (r) { return r.name; } }, { h: 'অগ্রগতি', v: function (r) { return r.progress + '%'; } }, sCol()],
+      [{ k: 'user_id', l: 'গ্রাহক', lk: 'users', req: 1 }, { k: 'order_id', l: 'অর্ডার', lk: 'orders' }, { k: 'name', l: 'প্রজেক্টের নাম', req: 1 }, { k: 'progress', l: 'অগ্রগতি (০–১০০)', t: 'number' }, { k: 'status', l: 'অবস্থা', o: ['planning', 'in_progress', 'on_hold', 'completed'] }], ['planning', 'in_progress', 'on_hold', 'completed']);
+    V.milestones = resView('milestones', 'Milestones',
+      [{ h: 'প্রজেক্ট', v: function (r) { return r.project_name || '—'; } }, { h: 'ধাপ', v: function (r) { return r.title; } }, { h: 'শেষ তারিখ', v: function (r) { return dt(r.due_date); } }, sCol(), { h: 'গ্রাহকের নোট', v: function (r) { return r.client_note || '—'; } }, { h: 'অনুমোদন', v: function (r) { return r.approved_at ? dt(r.approved_at) : '—'; } }],
+      [{ k: 'project_id', l: 'প্রজেক্ট', lk: 'projects', req: 1 }, { k: 'title', l: 'ধাপের নাম', req: 1 }, { k: 'due_date', l: 'শেষ তারিখ', t: 'date' }, { k: 'sort', l: 'ক্রম', t: 'number' }, { k: 'status', l: 'অবস্থা', o: ['pending', 'in_progress', 'awaiting_client', 'completed'] }], ['pending', 'in_progress', 'awaiting_client', 'completed']);
+    V.automation = resView('automation_runs', 'Automation Runs',
+      [{ h: 'ওয়ার্কফ্লো', v: function (r) { return r.name; } }, sCol(), { h: 'রান', v: function (r) { return dtt(r.ran_at || r.created_at); } }, { h: 'লগ', v: function (r) { return r.log || '—'; } }],
+      [{ k: 'name', l: 'ওয়ার্কফ্লো', req: 1 }, { k: 'status', l: 'অবস্থা', o: ['success', 'failed', 'waiting_approval'] }, { k: 'log', l: 'লগ / নোট', t: 'textarea' }], ['success', 'failed', 'waiting_approval']);
+    V.content = resView('cms_pages', 'Content',
+      [{ h: 'স্লাগ', v: function (r) { return r.slug; } }, { h: 'শিরোনাম', v: function (r) { return r.title; } }, sCol(), { h: 'হালনাগাদ', v: function (r) { return dt(r.updated_at); } }],
+      [{ k: 'slug', l: 'স্লাগ (a-z, -)', req: 1 }, { k: 'title', l: 'শিরোনাম', req: 1 }, { k: 'body', l: 'বিষয়বস্তু', t: 'textarea' }, { k: 'status', l: 'অবস্থা', o: ['draft', 'published'] }], ['draft', 'published']);
+    V.products = { t: 'Products ও Licenses', load: function () {
+      var box = T('div', 'display:flex;flex-direction:column;gap:20px');
+      var a = resView('products', '', [{ h: 'প্রোডাক্ট', v: function (r) { return r.name; } }, { h: 'মূল্য', v: function (r) { return r.price_bdt ? bdt(r.price_bdt) : '—'; } }, sCol()],
+        [{ k: 'name', l: 'প্রোডাক্টের নাম', req: 1 }, { k: 'price_bdt', l: 'মূল্য (৳)', t: 'number' }, { k: 'status', l: 'অবস্থা', o: ['active', 'coming_soon', 'retired'] }, { k: 'description', l: 'বিবরণ', t: 'textarea' }], ['active', 'coming_soon', 'retired'], 'products');
+      var b = resView('licenses', '', [{ h: 'প্রোডাক্ট', v: function (r) { return r.product_name || '—'; } }, { h: 'গ্রাহক', v: who }, { h: 'লাইসেন্স কী', v: function (r) { return r.license_key; } }, sCol(), { h: 'মেয়াদ', v: function (r) { return dt(r.expires_on); } }],
+        [{ k: 'user_id', l: 'গ্রাহক', lk: 'users', req: 1 }, { k: 'product_id', l: 'প্রোডাক্ট', lk: 'products', req: 1 }, { k: 'expires_on', l: 'মেয়াদ', t: 'date' }, { k: 'status', l: 'অবস্থা', o: ['active', 'expired', 'revoked'] }], ['active', 'expired', 'revoked'], 'products');
+      return Promise.all([a.load(), b.load()]).then(function (n) { box.appendChild(T('div', 'font-size:17px;font-weight:700', 'Products')); box.appendChild(n[0]); box.appendChild(T('div', 'font-size:17px;font-weight:700', 'Licenses (গ্রাহককে দেওয়া)')); box.appendChild(n[1]); return box; });
+    } };
+    V.files = { t: 'Files', load: function () {
+      return Promise.all([api('/admin/files'), lookups()]).then(function (x) {
+        var box = T('div', 'display:flex;flex-direction:column;gap:16px');
+        var f = T('form', CARD + ';display:flex;flex-direction:column;gap:12px'); f.appendChild(T('div', 'font-size:16px;font-weight:700', 'গ্রাহকের জন্য ফাইল আপলোড (সর্বোচ্চ ১০ MB)'));
+        var g = T('div', 'display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px'); f.appendChild(g);
+        function sel(id, label, list, req) { var w = T('div'); var l = T('label', 'display:block;font-size:13px;font-weight:600;margin-bottom:4px', label); l.htmlFor = id; var i = T('select', IN); i.id = id; var o0 = T('option', null, req ? 'বাছাই করুন' : '— নেই —'); o0.value = ''; i.appendChild(o0); list.forEach(function (o) { var op = T('option', null, o.l); op.value = o.v; i.appendChild(op); }); i.required = !!req; w.appendChild(l); w.appendChild(i); g.appendChild(w); return i; }
+        var su = sel('fu', 'গ্রাহক *', x[1].users, 1), sp = sel('fp', 'প্রজেক্ট', x[1].projects, 0);
+        var w = T('div'); var l = T('label', 'display:block;font-size:13px;font-weight:600;margin-bottom:4px', 'ফাইল *'); l.htmlFor = 'ff'; var fi = T('input', IN + ';padding-top:9px'); fi.type = 'file'; fi.id = 'ff'; fi.required = true; w.appendChild(l); w.appendChild(fi); g.appendChild(w);
+        var err = T('div', 'font-size:13px;font-weight:600;color:#B91C1C;display:none'); err.setAttribute('role', 'alert'); f.appendChild(err);
+        var go = T('button', 'background:#FF7900;color:#26272B;border:0;border-radius:12px;min-height:44px;padding:0 18px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;align-self:flex-start', 'আপলোড'); go.type = 'submit'; f.appendChild(go);
+        f.addEventListener('submit', function (e) { e.preventDefault(); err.style.display = 'none'; var fd = new FormData(); fd.append('user_id', su.value); if (sp.value) fd.append('project_id', sp.value); fd.append('file', fi.files[0]); go.disabled = true;
+          fetch('/api/admin/files', { method: 'POST', headers: { Accept: 'application/json', Authorization: 'Bearer ' + TOKEN }, body: fd }).then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); }).then(function (r) { go.disabled = false; if (r.ok) show('files'); else { var k = r.j.errors && Object.keys(r.j.errors)[0]; err.textContent = k ? r.j.errors[k][0] : (r.j.message || 'আপলোড হয়নি'); err.style.display = 'block'; } }); });
+        box.appendChild(f);
+        box.appendChild(table([{ h: 'ফাইল', v: function (r) { return r.name; } }, { h: 'গ্রাহক', v: function (r) { return r.user_name || '—'; } }, { h: 'সাইজ', v: function (r) { return Math.round(r.size / 1024) + ' KB'; } }, { h: 'তারিখ', v: function (r) { return dt(r.created_at); } }], x[0].j || [], function (r, c) { c.appendChild(btn('ডাউনলোড', function (b) { blob('/admin/files/' + r.id + '/download', r.name).then(function () { b.disabled = false; }); })); }));
+        return box;
+      });
+    } };
+    var MAP = { Customers: 'customers', Invoices: 'invoices', Payments: 'payments', Renewals: 'renewals', 'Support Tickets': 'tickets', Inquiries: 'inquiries', 'Live Chat': 'chat', Services: 'services', Products: 'products', Quotes: 'quotes', Orders: 'orders', Projects: 'projects', Milestones: 'milestones', 'Automation Runs': 'automation', Content: 'content' };
+    var SOON = [];
     function setActive(a) { all('a').forEach(function (x) { if (x.getAttribute('data-nav')) x.style.fontWeight = x === a ? '700' : ''; }); }
     function show(key, a) {
       clearInterval(view._timer);
@@ -458,6 +635,9 @@
       d.load().then(function (node) { view.textContent = ''; view.appendChild(node); }).catch(function () { view.textContent = 'লোড করা যায়নি।'; });
     }
     function showDash(a) { clearInterval(view._timer); h1.textContent = 'ড্যাশবোর্ড'; setActive(a); view.style.display = 'none'; dash.forEach(function (x) { x.style.display = ''; }); }
+    var cnNav = all('a').filter(function (a) { return norm(a.textContent) === 'Content'; })[0];
+    if (cnNav) { var fl = cnNav.cloneNode(true); fl.textContent = 'Files'; fl.setAttribute('href', '#top'); cnNav.parentNode.insertBefore(fl, cnNav); }
+    MAP.Files = 'files';
     var stNav = all('a').filter(function (a) { return norm(a.textContent) === 'Support Tickets'; })[0];
     if (stNav) { var lc = stNav.cloneNode(true); lc.textContent = 'Live Chat'; lc.setAttribute('href', '#top'); stNav.parentNode.insertBefore(lc, stNav.nextSibling); }
     all('a').forEach(function (a) {
