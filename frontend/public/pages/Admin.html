@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>অ্যাডমিন ড্যাশবোর্ড</title>
+<link rel="icon" href="/favicon.svg">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Noto+Sans+Bengali:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0;font-family:'Inter','Noto Sans Bengali',sans-serif;}
+a{color:#1D4ED8;text-decoration:none}a:hover{text-decoration:underline}
+
+/* ModinaLink brand theme: charcoal + orange */
+a{color:#C2410C}
+[style*="#2563EB" i],[style*="#1D4ED8" i]{border-color:#FF7900!important}
+[style*="color:#0F172A" i]{color:#26272B!important}
+[style*="background:#0F172A" i]{background:#26272B!important}
+[style*="background:#F8FAFC" i]{background:#F3F4F6!important}
+[style*="background:#F1F5F9" i]{background:#F3F4F6!important}
+[style*="background:#E2E8F0" i]{background:#D7D9DE!important}
+[style*="solid #F1F5F9" i]{border-color:#E6E8EC!important}
+[style*="#E2E8F0" i],[style*="#CBD5E1" i]{border-color:#D7D9DE!important}
+[style*="color:#475569" i],[style*="color:#64748B" i]{color:#62656D!important}
+[style*="color:#94A3B8" i]{color:#8A8D95!important}
+[style*="background:#EFF6FF" i],[style*="background:#DBEAFE" i],[style*="background:#CCFBF1" i],[style*="background:#F0FDFA" i]{background:#FFF1E3!important}
+[style*="color:#1E40AF" i],[style*="color:#1E3A8A" i],[style*="color:#0F766E" i]{color:#9A3412!important}
+[style*="#BFDBFE" i]{border-color:#FFD9B3!important}
+[style*="color:#2563EB" i],[style*="color:#1D4ED8" i]{color:#C2410C!important}
+[style*="background:#14B8A6" i]{background:#26272B!important}
+[style*="color:#14B8A6" i]{color:#62656D!important}
+[style*="background:#2563EB" i],[style*="background:#1D4ED8" i]{background:#FF7900!important;color:#26272B!important}
+[style*="background:#2563EB" i] :where(span,b,div,a,i,em,strong,small,h1,h2,h3,p),[style*="background:#1D4ED8" i] :where(span,b,div,a,i,em,strong,small){color:#26272B!important}
+[style*="gradient" i][style*="2563EB" i]:not([style*="0F172A" i]):not([style*="1E3A8A" i]):not([style*="1E40AF" i]):not([style*="clip" i]){background:linear-gradient(135deg,#FF7900,#FFA040)!important;color:#26272B!important}
+[style*="gradient" i][style*="2563EB" i]:not([style*="0F172A" i]):not([style*="1E3A8A" i]):not([style*="1E40AF" i]):not([style*="clip" i]) :where(span,b,div,a,i,em,strong,small,h1,h2,h3,p){color:#26272B!important}
+[style*="gradient" i]:is([style*="0F172A" i],[style*="1E3A8A" i],[style*="1E40AF" i]):not([style*="clip" i]){background:linear-gradient(135deg,#26272B,#3A3B41 62%,#4B3321)!important}
+[style*="background:rgba(37,99,235" i]{background:rgba(255,121,0,.10)!important}
+[style*="background:rgba(20,184,166" i]{background:rgba(38,39,43,.07)!important}
+[style*="rgba(37,99,235" i]{box-shadow:0 20px 44px -24px rgba(255,121,0,.45)!important}
+[fill="#2563EB" i],[fill="#1D4ED8" i]{fill:#FF7900!important}
+[fill="#14B8A6" i]{fill:#26272B!important}
+[stroke="#2563EB" i],[stroke="#1D4ED8" i]{stroke:#FF7900!important}
+[stroke="#14B8A6" i]{stroke:#26272B!important}
+[stop-color="#2563EB" i],[stop-color="#1D4ED8" i]{stop-color:#FF7900!important}
+[stop-color="#14B8A6" i]{stop-color:#26272B!important}
+[stroke="#E2E8F0" i]{stroke:#D7D9DE!important}
+#top::before{background:radial-gradient(circle,rgba(255,121,0,.20),rgba(255,121,0,0) 68%)!important}
+#top::after{background:radial-gradient(circle,rgba(38,39,43,.13),rgba(38,39,43,0) 68%)!important}
+#top h1:not(.ml-grad){background:linear-gradient(90deg,#26272B,#E56A00,#FF7900,#26272B)!important;background-size:200% 100%!important;-webkit-background-clip:text!important;background-clip:text!important}
+.ml-grad{background:linear-gradient(90deg,#FF7900,#26272B,#FF7900)!important;background-size:200% 100%!important;-webkit-background-clip:text!important;background-clip:text!important}
+.ml-lift:hover,#top [style*="border-radius:1"]:hover{box-shadow:0 18px 40px -18px rgba(255,121,0,.35)}
+/* craft: no decorative gradient washes or shimmer text */
+#top::before,#top::after{display:none!important}
+#top h1:not(.ml-grad){background:none!important;-webkit-text-fill-color:currentColor!important;animation:none!important}
+/* theme layer 2: tints and hero gradients */
+[style*="gradient" i][style*="EFF6FF" i],[style*="gradient" i][style*="DBEAFE" i]{background:linear-gradient(135deg,#FFF1E3,#F3F4F6)!important}
+[style*="radial-gradient(circle,rgba(37,99,235" i]{background:radial-gradient(circle,rgba(255,121,0,.22),rgba(255,121,0,0) 68%)!important}
+[style*="radial-gradient(circle,rgba(20,184,166" i]{background:radial-gradient(circle,rgba(38,39,43,.14),rgba(38,39,43,0) 68%)!important}
+[style*="linear-gradient(rgba(37,99,235" i]{background-image:linear-gradient(rgba(38,39,43,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(38,39,43,.05) 1px,transparent 1px)!important}
+
+</style>
+
+</head>
+<body>
+
+<div id="top" style="width:100%;background:#F8FAFC;color:#0F172A;font-family:'Inter','Noto Sans Bengali',sans-serif;line-height:1.6;display:flex;flex-wrap:wrap;align-items:stretch;min-height:1700px">
+
+<div style="flex:0 0 260px;background:#0F172A;color:#E2E8F0;padding:20px 14px;box-sizing:border-box;display:flex;flex-direction:column;gap:4px">
+<div style="display:flex;align-items:center;gap:10px;padding:4px 10px 18px">
+<svg width="32" height="32" viewBox="0 0 36 36" aria-hidden="true"><rect width="36" height="36" rx="10" fill="#2563EB"></rect><path d="M9 25V11l9 9 9-9v14" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path><circle cx="18" cy="27" r="2.5" fill="#14B8A6"></circle></svg>
+<span style="font-size:15px;font-weight:700;color:#FFFFFF">ModinaLink <span style="font-weight:500;color:#CBD5E1">Admin</span></span></div>
+<a href="#top" style="display:block;padding:9px 12px;border-radius:10px;font-size:14px;font-weight:700;background:#2563EB;color:#FFFFFF;text-decoration:none">ড্যাশবোর্ড</a><a href="#top" style="display:block;padding:9px 12px;border-radius:10px;font-size:14px;font-weight:500;background:transparent;color:#FFFFFF;text-decoration:none">Inquiries</a><a href="#top" style="display:block;padding:9px 12px;border-radius:10px;font-size:14px;font-weight:500;background:transparent;color:#FFFFFF;text-decoration:none">Quotes</a><a href="#top" style="display:block;padding:9px 12px;border-radius:10px;font-size:14px;font-weight:500;background:transparent;color:#FFFFFF;text-decoration:none">Orders</a><a href="#top" style="display:block;padding:9px 12px;border-radius:10px;font-size:14px;font-weight:500;background:transparent;color:#FFFFFF;text-decoration:none">Customers</a><a href="#top" style="display:block;padding:9px 12px;border-radius:10px;font-size:14px;font-weight:500;background:transparent;color:#FFFFFF;text-decoration:none">Services</a><a href="#top" style="display:block;padding:9px 12px;border-radius:10px;font-size:14px;font-weight:500;background:transparent;color:#FFFFFF;text-decoration:none">Products</a><a href="#top" style="display:block;padding:9px 12px;border-radius:10px;font-size:14px;font-weight:500;background:transparent;color:#FFFFFF;text-decoration:none">Projects</a><a href="#top" style="display:block;padding:9px 12px;border-radius:10px;font-size:14px;font-weight:500;background:transparent;color:#FFFFFF;text-decoration:none">Milestones</a><a href="#top" style="display:block;padding:9px 12px;border-radius:10px;font-size:14px;font-weight:500;background:transparent;color:#FFFFFF;text-decoration:none">Invoices</a><a href="#top" style="display:block;padding:9px 12px;border-radius:10px;font-size:14px;font-weight:500;background:transparent;color:#FFFFFF;text-decoration:none">Payments</a><a href="#top" style="display:block;padding:9px 12px;border-radius:10px;font-size:14px;font-weight:500;background:transparent;color:#FFFFFF;text-decoration:none">Support Tickets</a><a href="#top" style="display:block;padding:9px 12px;border-radius:10px;font-size:14px;font-weight:500;background:transparent;color:#FFFFFF;text-decoration:none">Renewals</a><a href="#top" style="display:block;padding:9px 12px;border-radius:10px;font-size:14px;font-weight:500;background:transparent;color:#FFFFFF;text-decoration:none">Automation Runs</a><a href="#top" style="display:block;padding:9px 12px;border-radius:10px;font-size:14px;font-weight:500;background:transparent;color:#FFFFFF;text-decoration:none">Content</a><a href="#top" style="display:block;padding:9px 12px;border-radius:10px;font-size:14px;font-weight:500;background:transparent;color:#FFFFFF;text-decoration:none">Settings</a>
+</div>
+
+<div style="flex:1 1 820px;min-width:0;padding:28px 36px 60px;box-sizing:border-box;display:flex;flex-direction:column;gap:24px">
+
+<div style="display:flex;flex-wrap:wrap;gap:16px;justify-content:space-between;align-items:center">
+<div><h1 style="margin:0;font-size:30px;font-weight:700">ড্যাশবোর্ড</h1><div style="font-size:14px;color:#475569">অপারেশনস ওভারভিউ · সব সংখ্যা “—” = নমুনা ডিজাইন, প্রকৃত ডেটা নয়</div></div>
+<div style="display:flex;align-items:center;gap:12px;font-size:14px;color:#475569"><span style="border:1px solid #CBD5E1;background:#FFFFFF;border-radius:10px;padding:8px 14px;width:220px;box-sizing:border-box">অনুসন্ধান…</span><span>[অ্যাডমিনের নাম] · Owner</span></div>
+</div>
+
+<div style="display:grid;grid-template-columns:repeat(4, minmax(0, 1fr));gap:16px">
+
+<a href="#list" style="display:block;background:#FFFFFF;border:1px solid #E2E8F0;border-radius:16px;padding:18px 20px;color:#0F172A;text-decoration:none">
+<div style="display:flex;align-items:center;gap:8px;font-size:13px;color:#475569"><span style="width:8px;height:8px;border-radius:999px;background:#CA8A04"></span>Pending inquiry</div>
+<div style="font-size:28px;font-weight:700;margin-top:6px">—</div>
+<div style="font-size:12px;color:#1D4ED8;font-weight:600">তালিকা দেখুন</div>
+</a>
+
+<a href="#list" style="display:block;background:#FFFFFF;border:1px solid #E2E8F0;border-radius:16px;padding:18px 20px;color:#0F172A;text-decoration:none">
+<div style="display:flex;align-items:center;gap:8px;font-size:13px;color:#475569"><span style="width:8px;height:8px;border-radius:999px;background:#2563EB"></span>Quote awaiting response</div>
+<div style="font-size:28px;font-weight:700;margin-top:6px">—</div>
+<div style="font-size:12px;color:#1D4ED8;font-weight:600">তালিকা দেখুন</div>
+</a>
+
+<a href="#list" style="display:block;background:#FFFFFF;border:1px solid #E2E8F0;border-radius:16px;padding:18px 20px;color:#0F172A;text-decoration:none">
+<div style="display:flex;align-items:center;gap:8px;font-size:13px;color:#475569"><span style="width:8px;height:8px;border-radius:999px;background:#CA8A04"></span>Payment due</div>
+<div style="font-size:28px;font-weight:700;margin-top:6px">—</div>
+<div style="font-size:12px;color:#1D4ED8;font-weight:600">তালিকা দেখুন</div>
+</a>
+
+<a href="#list" style="display:block;background:#FFFFFF;border:1px solid #E2E8F0;border-radius:16px;padding:18px 20px;color:#0F172A;text-decoration:none">
+<div style="display:flex;align-items:center;gap:8px;font-size:13px;color:#475569"><span style="width:8px;height:8px;border-radius:999px;background:#2563EB"></span>Active project</div>
+<div style="font-size:28px;font-weight:700;margin-top:6px">—</div>
+<div style="font-size:12px;color:#1D4ED8;font-weight:600">তালিকা দেখুন</div>
+</a>
+
+<a href="#list" style="display:block;background:#FFFFFF;border:1px solid #E2E8F0;border-radius:16px;padding:18px 20px;color:#0F172A;text-decoration:none">
+<div style="display:flex;align-items:center;gap:8px;font-size:13px;color:#475569"><span style="width:8px;height:8px;border-radius:999px;background:#DC2626"></span>Overdue milestone</div>
+<div style="font-size:28px;font-weight:700;margin-top:6px">—</div>
+<div style="font-size:12px;color:#1D4ED8;font-weight:600">তালিকা দেখুন</div>
+</a>
+
+<a href="#list" style="display:block;background:#FFFFFF;border:1px solid #E2E8F0;border-radius:16px;padding:18px 20px;color:#0F172A;text-decoration:none">
+<div style="display:flex;align-items:center;gap:8px;font-size:13px;color:#475569"><span style="width:8px;height:8px;border-radius:999px;background:#CA8A04"></span>Open ticket</div>
+<div style="font-size:28px;font-weight:700;margin-top:6px">—</div>
+<div style="font-size:12px;color:#1D4ED8;font-weight:600">তালিকা দেখুন</div>
+</a>
+
+<a href="#list" style="display:block;background:#FFFFFF;border:1px solid #E2E8F0;border-radius:16px;padding:18px 20px;color:#0F172A;text-decoration:none">
+<div style="display:flex;align-items:center;gap:8px;font-size:13px;color:#475569"><span style="width:8px;height:8px;border-radius:999px;background:#CA8A04"></span>Renewal due</div>
+<div style="font-size:28px;font-weight:700;margin-top:6px">—</div>
+<div style="font-size:12px;color:#1D4ED8;font-weight:600">তালিকা দেখুন</div>
+</a>
+
+<a href="#list" style="display:block;background:#FFFFFF;border:1px solid #E2E8F0;border-radius:16px;padding:18px 20px;color:#0F172A;text-decoration:none">
+<div style="display:flex;align-items:center;gap:8px;font-size:13px;color:#475569"><span style="width:8px;height:8px;border-radius:999px;background:#DC2626"></span>Failed automation</div>
+<div style="font-size:28px;font-weight:700;margin-top:6px">—</div>
+<div style="font-size:12px;color:#1D4ED8;font-weight:600">তালিকা দেখুন</div>
+</a>
+
+</div>
+
+<div style="background:#FFFFFF;border:1px solid #E2E8F0;border-radius:16px;padding:24px">
+<div style="display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;align-items:center;margin-bottom:4px"><div style="font-size:18px;font-weight:700">টিকেট থেকে রিলিজ বোর্ড</div><span style="font-size:12px;color:#475569">শুধু অ্যাডমিন দেখে · গ্রাহকের কাছে “ModinaLink টিম” হিসেবে দেখায়</span></div>
+<div style="font-size:13px;color:#475569;margin-bottom:16px;line-height:1.7">AI খসড়া ও ডিপ্লয় প্রস্তুত করে; লাইভ সার্ভিসে প্রয়োগের আগে স্টাফ অনুমোদন বাধ্যতামূলক। প্রতিটি ধাপ অডিট লগে যায়।</div>
+<div style="display:grid;grid-template-columns:repeat(5, minmax(0, 1fr));gap:12px">
+<div style="background:#F8FAFC;border:1px solid #E2E8F0;border-radius:12px;padding:12px"><div style="font-size:13px;font-weight:700;margin-bottom:8px">নতুন টিকেট</div><div style="background:#FFFFFF;border:1px solid #E2E8F0;border-radius:10px;padding:10px;font-size:12px">TKT-[নম্বর]<br><span style="color:#475569">[গ্রাহক] · সার্ভিস আপডেট</span></div></div>
+<div style="background:#F8FAFC;border:1px solid #E2E8F0;border-radius:12px;padding:12px"><div style="font-size:13px;font-weight:700;margin-bottom:8px">স্কোপ যাচাই</div><div style="background:#FFFFFF;border:1px solid #E2E8F0;border-radius:10px;padding:10px;font-size:12px">TKT-[নম্বর]<br><span style="color:#475569">প্যাকেজের মধ্যে? [হ্যাঁ/না]</span></div></div>
+<div style="background:#F8FAFC;border:1px solid #E2E8F0;border-radius:12px;padding:12px"><div style="font-size:13px;font-weight:700;margin-bottom:8px">AI খসড়া (Staging)</div><div style="background:#FFFFFF;border:1px solid #E2E8F0;border-radius:10px;padding:10px;font-size:12px">TKT-[নম্বর]<br><span style="color:#475569">খসড়া ডিফ ও টেস্ট ফলাফল</span></div></div>
+<div style="background:#FEFCE8;border:1px solid #FDE68A;border-radius:12px;padding:12px"><div style="font-size:13px;font-weight:700;margin-bottom:8px">স্টাফ অনুমোদন</div><div style="background:#FFFFFF;border:1px solid #E2E8F0;border-radius:10px;padding:10px;font-size:12px">TKT-[নম্বর]<br><span style="color:#475569">রোলব্যাক পয়েন্ট: প্রস্তুত</span><div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap"><span style="background:#2563EB;color:#FFFFFF;border-radius:8px;padding:5px 10px;font-weight:600">অনুমোদন</span><span style="border:1px solid #CBD5E1;border-radius:8px;padding:4px 10px;font-weight:600">ফেরত</span></div></div></div>
+<div style="background:#F8FAFC;border:1px solid #E2E8F0;border-radius:12px;padding:12px"><div style="font-size:13px;font-weight:700;margin-bottom:8px">ডিপ্লয় (Production)</div><div style="background:#FFFFFF;border:1px solid #E2E8F0;border-radius:10px;padding:10px;font-size:12px">TKT-[নম্বর]<br><span style="display:inline-flex;gap:6px;align-items:center;font-weight:600"><span style="width:8px;height:8px;border-radius:999px;background:#16A34A"></span>success → পোর্টাল আপডেট</span><div style="margin-top:6px;color:#475569">Rollback</div></div></div>
+</div>
+</div>
+
+<div id="list" style="background:#FFFFFF;border:1px solid #E2E8F0;border-radius:16px;padding:24px">
+<div style="display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;align-items:center;margin-bottom:16px">
+<div style="font-size:18px;font-weight:700">ইনকোয়ারি ও কোটেশন</div>
+<div style="display:flex;flex-wrap:wrap;gap:10px">
+<label for="s1" style="position:absolute;left:-9999px">অনুসন্ধান</label>
+<input id="s1" type="text" placeholder="নাম / রেফারেন্স খুঁজুন" style="height:40px;box-sizing:border-box;border:1px solid #CBD5E1;border-radius:10px;padding:0 12px;font-size:14px;font-family:inherit;width:220px">
+<span style="border:1px solid #CBD5E1;border-radius:10px;padding:8px 14px;font-size:14px;font-weight:500">স্ট্যাটাস: সব</span>
+<span style="border:1px solid #CBD5E1;border-radius:10px;padding:8px 14px;font-size:14px;font-weight:500">অ্যাসাইনি: সব</span>
+</div>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1.6fr 1.2fr 1.2fr 1fr;font-size:13px">
+<div style="padding:10px 12px;font-weight:700;color:#475569;border-bottom:1px solid #E2E8F0">রেফারেন্স</div>
+<div style="padding:10px 12px;font-weight:700;color:#475569;border-bottom:1px solid #E2E8F0">গ্রাহক / সার্ভিস</div>
+<div style="padding:10px 12px;font-weight:700;color:#475569;border-bottom:1px solid #E2E8F0">অবস্থা</div>
+<div style="padding:10px 12px;font-weight:700;color:#475569;border-bottom:1px solid #E2E8F0">অ্যাসাইনি</div>
+<div style="padding:10px 12px;font-weight:700;color:#475569;border-bottom:1px solid #E2E8F0">হালনাগাদ</div>
+
+<div style="padding:13px 12px;border-bottom:1px solid #F1F5F9"><a href="#top" style="font-weight:600">INQ-[নম্বর]</a></div>
+<div style="padding:13px 12px;border-bottom:1px solid #F1F5F9">[গ্রাহকের নাম] · AI ওয়েবসাইট চ্যাটবট</div>
+<div style="padding:13px 12px;border-bottom:1px solid #F1F5F9"><span style="display:inline-flex;gap:6px;align-items:center;font-weight:600"><span style="width:8px;height:8px;border-radius:999px;background:#CA8A04"></span>new</span></div>
+<div style="padding:13px 12px;border-bottom:1px solid #F1F5F9;color:#475569">[স্টাফ]</div>
+<div style="padding:13px 12px;border-bottom:1px solid #F1F5F9;color:#475569">[তারিখ]</div>
+
+<div style="padding:13px 12px;border-bottom:1px solid #F1F5F9"><a href="#top" style="font-weight:600">QUO-[নম্বর]</a></div>
+<div style="padding:13px 12px;border-bottom:1px solid #F1F5F9">[গ্রাহকের নাম] · কাস্টম সফটওয়্যার</div>
+<div style="padding:13px 12px;border-bottom:1px solid #F1F5F9"><span style="display:inline-flex;gap:6px;align-items:center;font-weight:600"><span style="width:8px;height:8px;border-radius:999px;background:#2563EB"></span>sent</span></div>
+<div style="padding:13px 12px;border-bottom:1px solid #F1F5F9;color:#475569">[স্টাফ]</div>
+<div style="padding:13px 12px;border-bottom:1px solid #F1F5F9;color:#475569">[তারিখ]</div>
+
+<div style="padding:13px 12px;border-bottom:1px solid #F1F5F9"><a href="#top" style="font-weight:600">QUO-[নম্বর]</a></div>
+<div style="padding:13px 12px;border-bottom:1px solid #F1F5F9">[গ্রাহকের নাম] · ওয়েবসাইট</div>
+<div style="padding:13px 12px;border-bottom:1px solid #F1F5F9"><span style="display:inline-flex;gap:6px;align-items:center;font-weight:600"><span style="width:8px;height:8px;border-radius:999px;background:#16A34A"></span>accepted</span></div>
+<div style="padding:13px 12px;border-bottom:1px solid #F1F5F9;color:#475569">[স্টাফ]</div>
+<div style="padding:13px 12px;border-bottom:1px solid #F1F5F9;color:#475569">[তারিখ]</div>
+
+<div style="padding:13px 12px;border-bottom:1px solid #F1F5F9"><a href="#top" style="font-weight:600">INQ-[নম্বর]</a></div>
+<div style="padding:13px 12px;border-bottom:1px solid #F1F5F9">[গ্রাহকের নাম] · সাপোর্ট প্যাকেজ</div>
+<div style="padding:13px 12px;border-bottom:1px solid #F1F5F9"><span style="display:inline-flex;gap:6px;align-items:center;font-weight:600"><span style="width:8px;height:8px;border-radius:999px;background:#CA8A04"></span>needs_info</span></div>
+<div style="padding:13px 12px;border-bottom:1px solid #F1F5F9;color:#475569">[স্টাফ]</div>
+<div style="padding:13px 12px;border-bottom:1px solid #F1F5F9;color:#475569">[তারিখ]</div>
+
+<div style="padding:13px 12px;border-bottom:1px solid #F1F5F9"><a href="#top" style="font-weight:600">QUO-[নম্বর]</a></div>
+<div style="padding:13px 12px;border-bottom:1px solid #F1F5F9">[গ্রাহকের নাম] · ক্লাউড সেটআপ</div>
+<div style="padding:13px 12px;border-bottom:1px solid #F1F5F9"><span style="display:inline-flex;gap:6px;align-items:center;font-weight:600"><span style="width:8px;height:8px;border-radius:999px;background:#DC2626"></span>declined</span></div>
+<div style="padding:13px 12px;border-bottom:1px solid #F1F5F9;color:#475569">[স্টাফ]</div>
+<div style="padding:13px 12px;border-bottom:1px solid #F1F5F9;color:#475569">[তারিখ]</div>
+
+<div style="padding:13px 12px;border-bottom:1px solid #F1F5F9"><a href="#top" style="font-weight:600">INQ-[নম্বর]</a></div>
+<div style="padding:13px 12px;border-bottom:1px solid #F1F5F9">[গ্রাহকের নাম] · AI Automation</div>
+<div style="padding:13px 12px;border-bottom:1px solid #F1F5F9"><span style="display:inline-flex;gap:6px;align-items:center;font-weight:600"><span style="width:8px;height:8px;border-radius:999px;background:#0F766E"></span>converted</span></div>
+<div style="padding:13px 12px;border-bottom:1px solid #F1F5F9;color:#475569">[স্টাফ]</div>
+<div style="padding:13px 12px;border-bottom:1px solid #F1F5F9;color:#475569">[তারিখ]</div>
+
+</div>
+<div style="display:flex;justify-content:space-between;align-items:center;margin-top:16px;font-size:13px;color:#475569"><span>পৃষ্ঠা ১ / [N]</span><span style="display:flex;gap:8px"><span style="border:1px solid #CBD5E1;border-radius:8px;padding:6px 12px">আগের</span><span style="border:1px solid #CBD5E1;border-radius:8px;padding:6px 12px;background:#EFF6FF;color:#1E40AF;font-weight:600">১</span><span style="border:1px solid #CBD5E1;border-radius:8px;padding:6px 12px">২</span><span style="border:1px solid #CBD5E1;border-radius:8px;padding:6px 12px">পরের</span></span></div>
+</div>
+
+<div style="display:flex;flex-wrap:wrap;gap:24px">
+<div style="flex:1 1 380px;min-width:0;background:#FFFFFF;border:1px solid #E2E8F0;border-radius:16px;padding:24px">
+<div style="font-size:18px;font-weight:700;margin-bottom:4px">AI Automation অপারেশনস</div>
+<div style="font-size:13px;color:#475569;margin-bottom:14px;line-height:1.7">স্পর্শকাতর বা বাইরে যাওয়া কাজ মানুষের অনুমোদন ছাড়া হয় না।</div>
+<div style="display:flex;justify-content:space-between;gap:12px;padding:11px 0;border-top:1px solid #F1F5F9;font-size:14px"><span>[অটোমেশন ওয়ার্কফ্লো]</span><span style="display:inline-flex;gap:6px;align-items:center;font-weight:600"><span style="width:8px;height:8px;border-radius:999px;background:#CA8A04"></span>waiting_approval</span></div><div style="display:flex;justify-content:space-between;gap:12px;padding:11px 0;border-top:1px solid #F1F5F9;font-size:14px"><span>[অটোমেশন ওয়ার্কফ্লো]</span><span style="display:inline-flex;gap:6px;align-items:center;font-weight:600"><span style="width:8px;height:8px;border-radius:999px;background:#16A34A"></span>success</span></div><div style="display:flex;justify-content:space-between;gap:12px;padding:11px 0;border-top:1px solid #F1F5F9;font-size:14px"><span>[অটোমেশন ওয়ার্কফ্লো]</span><span style="display:inline-flex;gap:6px;align-items:center;font-weight:600"><span style="width:8px;height:8px;border-radius:999px;background:#DC2626"></span>failed</span></div>
+</div>
+<div style="flex:1 1 380px;min-width:0;background:#FFFFFF;border:1px solid #E2E8F0;border-radius:16px;padding:24px">
+<div style="font-size:18px;font-weight:700;margin-bottom:4px">অডিট লগ</div>
+<div style="font-size:13px;color:#475569;margin-bottom:14px;line-height:1.7">মূল্য, পেমেন্ট ও স্ট্যাটাস পরিবর্তন সবসময় ব্যবহারকারী ও সময়সহ রেকর্ড হয়।</div>
+<div style="padding:11px 0;border-top:1px solid #F1F5F9;font-size:14px;display:flex;justify-content:space-between;gap:12px"><span>কোটেশন স্ট্যাটাস পরিবর্তন</span><span style="color:#475569">[ব্যবহারকারী · সময়]</span></div><div style="padding:11px 0;border-top:1px solid #F1F5F9;font-size:14px;display:flex;justify-content:space-between;gap:12px"><span>ম্যানুয়াল পেমেন্ট যাচাই</span><span style="color:#475569">[ব্যবহারকারী · সময়]</span></div><div style="padding:11px 0;border-top:1px solid #F1F5F9;font-size:14px;display:flex;justify-content:space-between;gap:12px"><span>মূল্য মডেল সম্পাদনা</span><span style="color:#475569">[ব্যবহারকারী · সময়]</span></div>
+</div>
+</div>
+</div>
+</div>
+
+<script src="/design-app.js" defer></script>
+</body>
+</html>

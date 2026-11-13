@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>সফটওয়্যার ফাইন্ডার</title>
+<link rel="icon" href="/favicon.svg">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+Bengali:wght@400;500;600;700&display=swap">
+<style>
+body{margin:0;font-family:'Inter','Noto Sans Bengali',sans-serif;}
+a{color:#1D4ED8;text-decoration:none}a:hover{text-decoration:underline}
+
+/* ModinaLink brand theme: charcoal + orange */
+a{color:#C2410C}
+[style*="#2563EB" i],[style*="#1D4ED8" i]{border-color:#FF7900!important}
+[style*="color:#0F172A" i]{color:#26272B!important}
+[style*="background:#0F172A" i]{background:#26272B!important}
+[style*="background:#F8FAFC" i]{background:#F3F4F6!important}
+[style*="background:#F1F5F9" i]{background:#F3F4F6!important}
+[style*="background:#E2E8F0" i]{background:#D7D9DE!important}
+[style*="solid #F1F5F9" i]{border-color:#E6E8EC!important}
+[style*="#E2E8F0" i],[style*="#CBD5E1" i]{border-color:#D7D9DE!important}
+[style*="color:#475569" i],[style*="color:#64748B" i]{color:#62656D!important}
+[style*="color:#94A3B8" i]{color:#8A8D95!important}
+[style*="background:#EFF6FF" i],[style*="background:#DBEAFE" i],[style*="background:#CCFBF1" i],[style*="background:#F0FDFA" i]{background:#FFF1E3!important}
+[style*="color:#1E40AF" i],[style*="color:#1E3A8A" i],[style*="color:#0F766E" i]{color:#9A3412!important}
+[style*="#BFDBFE" i]{border-color:#FFD9B3!important}
+[style*="color:#2563EB" i],[style*="color:#1D4ED8" i]{color:#C2410C!important}
+[style*="background:#14B8A6" i]{background:#26272B!important}
+[style*="color:#14B8A6" i]{color:#62656D!important}
+[style*="background:#2563EB" i],[style*="background:#1D4ED8" i]{background:#FF7900!important;color:#26272B!important}
+[style*="background:#2563EB" i] :where(span,b,div,a,i,em,strong,small,h1,h2,h3,p),[style*="background:#1D4ED8" i] :where(span,b,div,a,i,em,strong,small){color:#26272B!important}
+[style*="gradient" i][style*="2563EB" i]:not([style*="0F172A" i]):not([style*="1E3A8A" i]):not([style*="1E40AF" i]):not([style*="clip" i]){background:linear-gradient(135deg,#FF7900,#FFA040)!important;color:#26272B!important}
+[style*="gradient" i][style*="2563EB" i]:not([style*="0F172A" i]):not([style*="1E3A8A" i]):not([style*="1E40AF" i]):not([style*="clip" i]) :where(span,b,div,a,i,em,strong,small,h1,h2,h3,p){color:#26272B!important}
+[style*="gradient" i]:is([style*="0F172A" i],[style*="1E3A8A" i],[style*="1E40AF" i]):not([style*="clip" i]){background:linear-gradient(135deg,#26272B,#3A3B41 62%,#4B3321)!important}
+[style*="background:rgba(37,99,235" i]{background:rgba(255,121,0,.10)!important}
+[style*="background:rgba(20,184,166" i]{background:rgba(38,39,43,.07)!important}
+[style*="rgba(37,99,235" i]{box-shadow:0 20px 44px -24px rgba(255,121,0,.45)!important}
+[fill="#2563EB" i],[fill="#1D4ED8" i]{fill:#FF7900!important}
+[fill="#14B8A6" i]{fill:#26272B!important}
+[stroke="#2563EB" i],[stroke="#1D4ED8" i]{stroke:#FF7900!important}
+[stroke="#14B8A6" i]{stroke:#26272B!important}
+[stop-color="#2563EB" i],[stop-color="#1D4ED8" i]{stop-color:#FF7900!important}
+[stop-color="#14B8A6" i]{stop-color:#26272B!important}
+[stroke="#E2E8F0" i]{stroke:#D7D9DE!important}
+#top::before{background:radial-gradient(circle,rgba(255,121,0,.20),rgba(255,121,0,0) 68%)!important}
+#top::after{background:radial-gradient(circle,rgba(38,39,43,.13),rgba(38,39,43,0) 68%)!important}
+#top h1:not(.ml-grad){background:linear-gradient(90deg,#26272B,#E56A00,#FF7900,#26272B)!important;background-size:200% 100%!important;-webkit-background-clip:text!important;background-clip:text!important}
+.ml-grad{background:linear-gradient(90deg,#FF7900,#26272B,#FF7900)!important;background-size:200% 100%!important;-webkit-background-clip:text!important;background-clip:text!important}
+.ml-lift:hover,#top [style*="border-radius:1"]:hover{box-shadow:0 18px 40px -18px rgba(255,121,0,.35)}
+/* craft: no decorative gradient washes or shimmer text */
+#top::before,#top::after{display:none!important}
+#top h1:not(.ml-grad){background:none!important;-webkit-text-fill-color:currentColor!important;animation:none!important}
+/* theme layer 2: tints and hero gradients */
+[style*="gradient" i][style*="EFF6FF" i],[style*="gradient" i][style*="DBEAFE" i]{background:linear-gradient(135deg,#FFF1E3,#F3F4F6)!important}
+[style*="radial-gradient(circle,rgba(37,99,235" i]{background:radial-gradient(circle,rgba(255,121,0,.22),rgba(255,121,0,0) 68%)!important}
+[style*="radial-gradient(circle,rgba(20,184,166" i]{background:radial-gradient(circle,rgba(38,39,43,.14),rgba(38,39,43,0) 68%)!important}
+[style*="linear-gradient(rgba(37,99,235" i]{background-image:linear-gradient(rgba(38,39,43,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(38,39,43,.05) 1px,transparent 1px)!important}
+
+</style>
+
+</head>
+<body>
+
+<div id="top" style="width:100%;background:#F8FAFC;color:#0F172A;font-family:'Inter','Noto Sans Bengali',sans-serif;line-height:1.6">
+
+<div style="background:#FFFFFF;border-bottom:1px solid #E2E8F0">
+<div style="max-width:1280px;margin:0 auto;padding:16px 48px;box-sizing:border-box;display:flex;flex-wrap:wrap;align-items:center;gap:24px;justify-content:space-between">
+<a href="/" style="display:flex;align-items:center;gap:10px;color:#0F172A;text-decoration:none">
+<svg width="36" height="36" viewBox="0 0 36 36" aria-hidden="true"><rect width="36" height="36" rx="10" fill="#2563EB"/><path d="M9 25V11l9 9 9-9v14" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><circle cx="18" cy="27" r="2.5" fill="#14B8A6"/></svg>
+<span style="line-height:1.15"><span style="display:block;font-size:18px;font-weight:700">ModinaLink</span><span style="display:block;font-size:12px;color:#475569;font-weight:500">IT Solution</span></span></a>
+<div style="display:flex;align-items:center;gap:20px;font-size:14px;color:#475569"><span>বাংলা | EN</span><a href="/software-types" style="font-weight:600">সব সফটওয়্যারের ধরন</a><a href="/it-services" style="font-weight:600">আইটি সার্ভিস</a><a href="/quote" style="font-weight:600">Get a Quote</a></div>
+</div>
+</div>
+
+<div style="max-width:1280px;margin:0 auto;padding:48px 48px 24px;box-sizing:border-box">
+<h1 style="margin:0 0 8px;font-size:40px;font-weight:700;line-height:1.35">আপনার জন্য কী সফটওয়্যার দরকার?</h1>
+<p style="margin:0 0 24px;font-size:16px;color:#475569;max-width:680px">কয়েকটি প্রশ্নের উত্তর দিন। আমরা আপনার ব্যবসা ও লক্ষ্য অনুযায়ী সম্ভাব্য সমাধান দেখাব। এটি পরামর্শের শুরু, চূড়ান্ত দাম বা সময় নয়।</p>
+<div style="display:flex;flex-wrap:wrap;gap:12px;font-size:13px">
+<span style="display:inline-flex;align-items:center;gap:8px;border:1px solid #2563EB;background:#EFF6FF;color:#1E40AF;border-radius:999px;padding:7px 14px;font-weight:600"><span style="width:20px;height:20px;border-radius:999px;background:#2563EB;color:#FFFFFF;font-size:12px;display:flex;align-items:center;justify-content:center">১</span>ব্যবসা</span><span style="display:inline-flex;align-items:center;gap:8px;border:1px solid #2563EB;background:#EFF6FF;color:#1E40AF;border-radius:999px;padding:7px 14px;font-weight:600"><span style="width:20px;height:20px;border-radius:999px;background:#2563EB;color:#FFFFFF;font-size:12px;display:flex;align-items:center;justify-content:center">২</span>সফটওয়্যার</span><span style="display:inline-flex;align-items:center;gap:8px;border:1px solid #CBD5E1;background:#FFFFFF;color:#475569;border-radius:999px;padding:7px 14px;font-weight:600"><span style="width:20px;height:20px;border-radius:999px;background:#64748B;color:#FFFFFF;font-size:12px;display:flex;align-items:center;justify-content:center">৩</span>প্রয়োজন</span><span style="display:inline-flex;align-items:center;gap:8px;border:1px solid #CBD5E1;background:#FFFFFF;color:#475569;border-radius:999px;padding:7px 14px;font-weight:600"><span style="width:20px;height:20px;border-radius:999px;background:#64748B;color:#FFFFFF;font-size:12px;display:flex;align-items:center;justify-content:center">৪</span>সুপারিশ</span>
+</div>
+</div>
+
+<div style="max-width:1280px;margin:0 auto;padding:16px 48px 64px;box-sizing:border-box;display:flex;flex-wrap:wrap;gap:32px;align-items:flex-start">
+
+<div style="flex:1.4 1 620px;min-width:0;display:flex;flex-direction:column;gap:24px">
+<div style="background:#FFFFFF;border:1px solid #E2E8F0;border-radius:16px;padding:28px">
+<div style="font-size:18px;font-weight:700;margin-bottom:4px">১. আপনার ব্যবসা কোন ধরনের?</div>
+<div style="font-size:13px;color:#475569;margin-bottom:14px">একটি বা একাধিক বেছে নিন</div>
+<div style="display:flex;flex-wrap:wrap;gap:10px">
+<span style="border:1px solid #2563EB;background:#EFF6FF;color:#1E40AF;border-radius:999px;padding:9px 16px;font-size:14px;font-weight:500">রিটেইল ও দোকান</span><span style="border:1px solid #2563EB;background:#EFF6FF;color:#1E40AF;border-radius:999px;padding:9px 16px;font-size:14px;font-weight:500">ই-কমার্স</span><span style="border:1px solid #CBD5E1;background:#FFFFFF;color:#0F172A;border-radius:999px;padding:9px 16px;font-size:14px;font-weight:500">ম্যানুফ্যাকচারিং</span><span style="border:1px solid #CBD5E1;background:#FFFFFF;color:#0F172A;border-radius:999px;padding:9px 16px;font-size:14px;font-weight:500">স্বাস্থ্যসেবা ও ক্লিনিক</span><span style="border:1px solid #CBD5E1;background:#FFFFFF;color:#0F172A;border-radius:999px;padding:9px 16px;font-size:14px;font-weight:500">শিক্ষা ও প্রশিক্ষণ</span><span style="border:1px solid #CBD5E1;background:#FFFFFF;color:#0F172A;border-radius:999px;padding:9px 16px;font-size:14px;font-weight:500">রিয়েল এস্টেট</span><span style="border:1px solid #CBD5E1;background:#FFFFFF;color:#0F172A;border-radius:999px;padding:9px 16px;font-size:14px;font-weight:500">লজিস্টিকস ও পরিবহন</span><span style="border:1px solid #CBD5E1;background:#FFFFFF;color:#0F172A;border-radius:999px;padding:9px 16px;font-size:14px;font-weight:500">রেস্টুরেন্ট ও হসপিটালিটি</span><span style="border:1px solid #CBD5E1;background:#FFFFFF;color:#0F172A;border-radius:999px;padding:9px 16px;font-size:14px;font-weight:500">ফাইন্যান্স, ব্যাংক ও বীমা</span><span style="border:1px solid #CBD5E1;background:#FFFFFF;color:#0F172A;border-radius:999px;padding:9px 16px;font-size:14px;font-weight:500">সার্ভিস এজেন্সি</span><span style="border:1px solid #CBD5E1;background:#FFFFFF;color:#0F172A;border-radius:999px;padding:9px 16px;font-size:14px;font-weight:500">এনজিও ও সংগঠন</span><span style="border:1px solid #CBD5E1;background:#FFFFFF;color:#0F172A;border-radius:999px;padding:9px 16px;font-size:14px;font-weight:500">সরকারি প্রতিষ্ঠান</span><span style="border:1px solid #CBD5E1;background:#FFFFFF;color:#0F172A;border-radius:999px;padding:9px 16px;font-size:14px;font-weight:500">স্টার্টআপ</span><span style="border:1px solid #CBD5E1;background:#FFFFFF;color:#0F172A;border-radius:999px;padding:9px 16px;font-size:14px;font-weight:500">অন্য কিছু</span>
+</div>
+</div>
+
+<div style="background:#FFFFFF;border:1px solid #E2E8F0;border-radius:16px;padding:28px">
+<div style="font-size:18px;font-weight:700;margin-bottom:4px">২. কী ধরনের সফটওয়্যার চান?</div>
+<div style="font-size:13px;color:#475569;margin-bottom:14px">নিশ্চিত না হলে “সাহায্য চাই” বেছে নিন</div>
+<div style="display:grid;grid-template-columns:repeat(3, minmax(0, 1fr));gap:12px">
+<div style="border:1px solid #2563EB;background:#EFF6FF;border-radius:12px;padding:14px 16px"><div style="font-size:14px;font-weight:700;color:#1E40AF">ERP ও ব্যবসা ব্যবস্থাপনা</div><div style="font-size:12px;color:#475569;line-height:1.6">অর্ডার, স্টক, হিসাব, HR</div></div><div style="border:1px solid #CBD5E1;background:#FFFFFF;border-radius:12px;padding:14px 16px"><div style="font-size:14px;font-weight:700;color:#0F172A">CRM ও সেলস</div><div style="font-size:12px;color:#475569;line-height:1.6">গ্রাহক, লিড, ফলো-আপ</div></div><div style="border:1px solid #CBD5E1;background:#FFFFFF;border-radius:12px;padding:14px 16px"><div style="font-size:14px;font-weight:700;color:#0F172A">ওয়েবসাইট ও পোর্টাল</div><div style="font-size:12px;color:#475569;line-height:1.6">কোম্পানি সাইট, গ্রাহক পোর্টাল</div></div><div style="border:1px solid #CBD5E1;background:#FFFFFF;border-radius:12px;padding:14px 16px"><div style="font-size:14px;font-weight:700;color:#0F172A">ই-কমার্স ও মার্কেটপ্লেস</div><div style="font-size:12px;color:#475569;line-height:1.6">অনলাইন দোকান, বিক্রেতা</div></div><div style="border:1px solid #CBD5E1;background:#FFFFFF;border-radius:12px;padding:14px 16px"><div style="font-size:14px;font-weight:700;color:#0F172A">মোবাইল অ্যাপ</div><div style="font-size:12px;color:#475569;line-height:1.6">Android, iOS, ক্রস-প্ল্যাটফর্ম</div></div><div style="border:1px solid #CBD5E1;background:#FFFFFF;border-radius:12px;padding:14px 16px"><div style="font-size:14px;font-weight:700;color:#0F172A">AI ও অটোমেশন</div><div style="font-size:12px;color:#475569;line-height:1.6">চ্যাটবট, ওয়ার্কফ্লো, ডকুমেন্ট AI</div></div><div style="border:1px solid #CBD5E1;background:#FFFFFF;border-radius:12px;padding:14px 16px"><div style="font-size:14px;font-weight:700;color:#0F172A">ইন্ডাস্ট্রি সফটওয়্যার</div><div style="font-size:12px;color:#475569;line-height:1.6">ক্লিনিক, স্কুল, হোটেল, লজিস্টিকস</div></div><div style="border:1px solid #CBD5E1;background:#FFFFFF;border-radius:12px;padding:14px 16px"><div style="font-size:14px;font-weight:700;color:#0F172A">ডেটা ও ড্যাশবোর্ড</div><div style="font-size:12px;color:#475569;line-height:1.6">রিপোর্ট, ইন্টিগ্রেশন, মাইগ্রেশন</div></div><div style="border:1px solid #CBD5E1;background:#FFFFFF;border-radius:12px;padding:14px 16px"><div style="font-size:14px;font-weight:700;color:#0F172A">ক্লাউড ও সিকিউরিটি</div><div style="font-size:12px;color:#475569;line-height:1.6">হোস্টিং, ব্যাকআপ, সুরক্ষা</div></div><div style="border:1px solid #CBD5E1;background:#FFFFFF;border-radius:12px;padding:14px 16px"><div style="font-size:14px;font-weight:700;color:#0F172A">SaaS প্রোডাক্ট</div><div style="font-size:12px;color:#475569;line-height:1.6">আপনার নিজের সফটওয়্যার প্রোডাক্ট</div></div><div style="border:1px solid #CBD5E1;background:#FFFFFF;border-radius:12px;padding:14px 16px"><div style="font-size:14px;font-weight:700;color:#0F172A">ডেস্কটপ ও IoT</div><div style="font-size:12px;color:#475569;line-height:1.6">ডেস্কটপ অ্যাপ, ডিভাইস সংযোগ</div></div><div style="border:1px solid #CBD5E1;background:#FFFFFF;border-radius:12px;padding:14px 16px"><div style="font-size:14px;font-weight:700;color:#0F172A">IP PBX ও কল সেন্টার</div><div style="font-size:12px;color:#475569;line-height:1.6">VoIP, IVR, কল রেকর্ডিং</div></div><div style="border:1px solid #CBD5E1;background:#FFFFFF;border-radius:12px;padding:14px 16px"><div style="font-size:14px;font-weight:700;color:#0F172A">ফুল ই-কমার্স অটোমেশন</div><div style="font-size:12px;color:#475569;line-height:1.6">ওয়েবসাইট থেকে কল সেন্টার পর্যন্ত সব</div></div><div style="border:1px solid #CBD5E1;background:#FFFFFF;border-radius:12px;padding:14px 16px"><div style="font-size:14px;font-weight:700;color:#0F172A">ডোমেইন, হোস্টিং ও ইমেইল</div><div style="font-size:12px;color:#475569;line-height:1.6">সেটআপ ও রিনিউয়াল</div></div><div style="border:1px solid #CBD5E1;background:#FFFFFF;border-radius:12px;padding:14px 16px"><div style="font-size:14px;font-weight:700;color:#0F172A">পেমেন্ট ও কুরিয়ার ইন্টিগ্রেশন</div><div style="font-size:12px;color:#475569;line-height:1.6">অন্য সিস্টেমের সঙ্গে সংযোগ</div></div><div style="border:1px solid #CBD5E1;background:#FFFFFF;border-radius:12px;padding:14px 16px"><div style="font-size:14px;font-weight:700;color:#0F172A">মাসিক সাপোর্ট ও মেইনটেন্যান্স</div><div style="font-size:12px;color:#475569;line-height:1.6">চালু সিস্টেমের নিয়মিত যত্ন</div></div><div style="border:1px solid #CBD5E1;background:#FFFFFF;border-radius:12px;padding:14px 16px"><div style="font-size:14px;font-weight:700;color:#0F172A">SEO ও Ads সেটআপ</div><div style="font-size:12px;color:#475569;line-height:1.6">সার্চ, বিজ্ঞাপন, ট্র্যাকিং</div></div><div style="border:1px solid #CBD5E1;background:#FFFFFF;border-radius:12px;padding:14px 16px"><div style="font-size:14px;font-weight:700;color:#0F172A">নিরাপত্তা অডিট</div><div style="font-size:12px;color:#475569;line-height:1.6">দুর্বলতা খুঁজে সুপারিশ</div></div><div style="border:1px solid #CBD5E1;background:#FFFFFF;border-radius:12px;padding:14px 16px"><div style="font-size:14px;font-weight:700;color:#0F172A">ডিজাইন ও ব্র্যান্ডিং</div><div style="font-size:12px;color:#475569;line-height:1.6">UI/UX, লোগো, পরিচয়</div></div><div style="border:1px solid #CBD5E1;background:#FFFFFF;border-radius:12px;padding:14px 16px"><div style="font-size:14px;font-weight:700;color:#0F172A">হার্ডওয়্যার ও নেটওয়ার্ক</div><div style="font-size:12px;color:#475569;line-height:1.6">CCTV, POS, নেটওয়ার্ক সেটআপ</div></div><div style="border:1px solid #CBD5E1;background:#FFFFFF;border-radius:12px;padding:14px 16px"><div style="font-size:14px;font-weight:700;color:#0F172A">ফিনটেক ও ব্যাংকিং</div><div style="font-size:12px;color:#475569;line-height:1.6">ওয়ালেট, ঋণ, ব্যাংক, বীমা</div></div><div style="border:1px solid #CBD5E1;background:#FFFFFF;border-radius:12px;padding:14px 16px"><div style="font-size:14px;font-weight:700;color:#0F172A">বায়োমেট্রিক ও পরিচয়</div><div style="font-size:12px;color:#475569;line-height:1.6">ফিঙ্গারপ্রিন্ট, ফেস, আইডি সিস্টেম</div></div><div style="border:1px solid #CBD5E1;background:#FFFFFF;border-radius:12px;padding:14px 16px"><div style="font-size:14px;font-weight:700;color:#0F172A">IoT, ব্লকচেইন, AR/VR</div><div style="font-size:12px;color:#475569;line-height:1.6">নতুন প্রযুক্তির সমাধান</div></div><div style="border:1px solid #CBD5E1;background:#FFFFFF;border-radius:12px;padding:14px 16px"><div style="font-size:14px;font-weight:700;color:#0F172A">নিশ্চিত নই, সাহায্য চাই</div><div style="font-size:12px;color:#475569;line-height:1.6">আমরা একসঙ্গে ঠিক করব</div></div>
+</div>
+</div>
+
+<div style="background:#FFFFFF;border:1px solid #E2E8F0;border-radius:16px;padding:28px;display:flex;flex-direction:column;gap:18px">
+<div style="font-size:18px;font-weight:700">৩. আপনার প্রয়োজন ও পরিস্থিতি</div>
+<div style="display:grid;grid-template-columns:repeat(2, minmax(0, 1fr));gap:18px">
+<div><label for="f1" style="display:block;font-size:14px;font-weight:600;margin-bottom:6px">সমস্যা বা লক্ষ্য *</label><input id="f1" type="text" placeholder="যেমন: অর্ডার ও স্টক এক জায়গায় দেখতে চাই" style="width:100%;box-sizing:border-box;height:48px;border:1px solid #CBD5E1;border-radius:12px;padding:0 14px;font-size:15px;font-family:inherit"></div>
+<div><label for="f2" style="display:block;font-size:14px;font-weight:600;margin-bottom:6px">কতজন ব্যবহার করবে?</label><input id="f2" type="text" placeholder="যেমন: ১০–৫০ জন" style="width:100%;box-sizing:border-box;height:48px;border:1px solid #CBD5E1;border-radius:12px;padding:0 14px;font-size:15px;font-family:inherit"></div>
+<div><label for="f3" style="display:block;font-size:14px;font-weight:600;margin-bottom:6px">কোথায় চালাবেন?</label><input id="f3" type="text" placeholder="ওয়েব / মোবাইল / ডেস্কটপ / একাধিক" style="width:100%;box-sizing:border-box;height:48px;border:1px solid #CBD5E1;border-radius:12px;padding:0 14px;font-size:15px;font-family:inherit"></div>
+<div><label for="f4" style="display:block;font-size:14px;font-weight:600;margin-bottom:6px">বর্তমানে কী ব্যবহার করছেন?</label><input id="f4" type="text" placeholder="এক্সেল, পুরোনো সফটওয়্যার, কিছুই না…" style="width:100%;box-sizing:border-box;height:48px;border:1px solid #CBD5E1;border-radius:12px;padding:0 14px;font-size:15px;font-family:inherit"></div>
+<div><label for="f5" style="display:block;font-size:14px;font-weight:600;margin-bottom:6px">কোন সিস্টেমের সঙ্গে যুক্ত করতে হবে?</label><input id="f5" type="text" placeholder="পেমেন্ট, অ্যাকাউন্টিং, কুরিয়ার, ইত্যাদি" style="width:100%;box-sizing:border-box;height:48px;border:1px solid #CBD5E1;border-radius:12px;padding:0 14px;font-size:15px;font-family:inherit"></div>
+<div><label for="f6" style="display:block;font-size:14px;font-weight:600;margin-bottom:6px">কবে নাগাদ শুরু করতে চান?</label><input id="f6" type="text" placeholder="দিন / মাস / বছর (ঐচ্ছিক)" style="width:100%;box-sizing:border-box;height:48px;border:1px solid #CBD5E1;border-radius:12px;padding:0 14px;font-size:15px;font-family:inherit"></div>
+</div>
+<div style="display:flex;gap:12px;flex-wrap:wrap"><span style="background:#2563EB;color:#FFFFFF;border-radius:12px;padding:14px 26px;font-size:16px;font-weight:600">সম্ভাব্য সমাধান দেখুন</span><span style="border:1px solid #CBD5E1;border-radius:12px;padding:13px 22px;font-size:16px;font-weight:600">পরে করব</span></div>
+</div>
+</div>
+
+<div style="flex:1 1 360px;min-width:0;display:flex;flex-direction:column;gap:20px">
+<div style="background:#FFFFFF;border:1px solid #E2E8F0;border-radius:16px;padding:24px">
+<div style="font-size:12px;color:#475569;margin-bottom:6px">ফলাফলের নমুনা · উদাহরণ মাত্র</div>
+<div style="font-size:18px;font-weight:700;margin-bottom:12px">আপনার জন্য সম্ভাব্য সমাধান</div>
+<div style="display:flex;flex-direction:column;gap:12px">
+
+<div style="border:1px solid #E2E8F0;border-radius:12px;padding:14px 16px"><div style="font-size:15px;font-weight:700">অর্ডার ও স্টক ম্যানেজমেন্ট সিস্টেম</div><div style="font-size:13px;color:#475569;line-height:1.7;margin:4px 0 8px">আপনার ব্যবসার ধরন ও লক্ষ্যের সঙ্গে সবচেয়ে বেশি মেলে।</div><span style="font-size:12px;font-weight:600;background:#EFF6FF;color:#1E40AF;padding:4px 10px;border-radius:999px">Consultation Required</span></div>
+
+<div style="border:1px solid #E2E8F0;border-radius:12px;padding:14px 16px"><div style="font-size:15px;font-weight:700">ই-কমার্স ওয়েবসাইট</div><div style="font-size:13px;color:#475569;line-height:1.7;margin:4px 0 8px">অনলাইনে বিক্রির জন্য, স্টকের সঙ্গে যুক্ত করা যায়।</div><span style="font-size:12px;font-weight:600;background:#EFF6FF;color:#1E40AF;padding:4px 10px;border-radius:999px">Consultation Required</span></div>
+
+<div style="border:1px solid #E2E8F0;border-radius:12px;padding:14px 16px"><div style="font-size:15px;font-weight:700">AI গ্রাহক সহকারী</div><div style="font-size:13px;color:#475569;line-height:1.7;margin:4px 0 8px">প্রাথমিক প্রশ্নের উত্তর দেয়, জটিল বিষয় মানুষের কাছে পাঠায়।</div><span style="font-size:12px;font-weight:600;background:#EFF6FF;color:#1E40AF;padding:4px 10px;border-radius:999px">Consultation Required</span></div>
+
+</div>
+<div style="font-size:12px;color:#475569;line-height:1.8;margin-top:12px">ফলাফল আপনার উত্তর থেকে তৈরি একটি প্রাথমিক পরামর্শ। দাম ও সময় কোটেশনে আসবে। কোনো মূল্য এখানে দেখানো হয় না।</div>
+</div>
+<div style="background:#2563EB;color:#FFFFFF;border-radius:16px;padding:24px">
+<div style="font-size:18px;font-weight:700;margin-bottom:6px">এই তথ্য দিয়ে কোটেশন চান</div>
+<div style="font-size:14px;line-height:1.8;margin-bottom:16px">আপনার উত্তর কোটেশন ফর্মে আগে থেকে ভরা থাকবে।</div>
+<a href="/quote" style="display:block;background:#FFFFFF;color:#1D4ED8;border-radius:12px;padding:12px;text-align:center;font-size:15px;font-weight:700">কোটেশনের অনুরোধ</a>
+</div>
+</div>
+</div>
+
+<div style="background:#FFFFFF;border-top:1px solid #E2E8F0;padding:28px 0"><div style="max-width:1280px;margin:0 auto;padding:0 48px;box-sizing:border-box;font-size:13px;color:#475569">© ModinaLink IT Solution · Prototype design</div></div>
+</div>
+
+<script src="/design-app.js" defer></script>
+</body>
+</html>

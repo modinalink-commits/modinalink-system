@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>লগইন ও নিবন্ধন</title>
+<link rel="icon" href="/favicon.svg">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+Bengali:wght@400;500;600;700&display=swap">
+<style>
+body{margin:0;font-family:'Inter','Noto Sans Bengali',sans-serif;}
+a{color:#1D4ED8;text-decoration:none}a:hover{text-decoration:underline}
+
+/* ModinaLink brand theme: charcoal + orange */
+a{color:#C2410C}
+[style*="#2563EB" i],[style*="#1D4ED8" i]{border-color:#FF7900!important}
+[style*="color:#0F172A" i]{color:#26272B!important}
+[style*="background:#0F172A" i]{background:#26272B!important}
+[style*="background:#F8FAFC" i]{background:#F3F4F6!important}
+[style*="background:#F1F5F9" i]{background:#F3F4F6!important}
+[style*="background:#E2E8F0" i]{background:#D7D9DE!important}
+[style*="solid #F1F5F9" i]{border-color:#E6E8EC!important}
+[style*="#E2E8F0" i],[style*="#CBD5E1" i]{border-color:#D7D9DE!important}
+[style*="color:#475569" i],[style*="color:#64748B" i]{color:#62656D!important}
+[style*="color:#94A3B8" i]{color:#8A8D95!important}
+[style*="background:#EFF6FF" i],[style*="background:#DBEAFE" i],[style*="background:#CCFBF1" i],[style*="background:#F0FDFA" i]{background:#FFF1E3!important}
+[style*="color:#1E40AF" i],[style*="color:#1E3A8A" i],[style*="color:#0F766E" i]{color:#9A3412!important}
+[style*="#BFDBFE" i]{border-color:#FFD9B3!important}
+[style*="color:#2563EB" i],[style*="color:#1D4ED8" i]{color:#C2410C!important}
+[style*="background:#14B8A6" i]{background:#26272B!important}
+[style*="color:#14B8A6" i]{color:#62656D!important}
+[style*="background:#2563EB" i],[style*="background:#1D4ED8" i]{background:#FF7900!important;color:#26272B!important}
+[style*="background:#2563EB" i] :where(span,b,div,a,i,em,strong,small,h1,h2,h3,p),[style*="background:#1D4ED8" i] :where(span,b,div,a,i,em,strong,small){color:#26272B!important}
+[style*="gradient" i][style*="2563EB" i]:not([style*="0F172A" i]):not([style*="1E3A8A" i]):not([style*="1E40AF" i]):not([style*="clip" i]){background:linear-gradient(135deg,#FF7900,#FFA040)!important;color:#26272B!important}
+[style*="gradient" i][style*="2563EB" i]:not([style*="0F172A" i]):not([style*="1E3A8A" i]):not([style*="1E40AF" i]):not([style*="clip" i]) :where(span,b,div,a,i,em,strong,small,h1,h2,h3,p){color:#26272B!important}
+[style*="gradient" i]:is([style*="0F172A" i],[style*="1E3A8A" i],[style*="1E40AF" i]):not([style*="clip" i]){background:linear-gradient(135deg,#26272B,#3A3B41 62%,#4B3321)!important}
+[style*="background:rgba(37,99,235" i]{background:rgba(255,121,0,.10)!important}
+[style*="background:rgba(20,184,166" i]{background:rgba(38,39,43,.07)!important}
+[style*="rgba(37,99,235" i]{box-shadow:0 20px 44px -24px rgba(255,121,0,.45)!important}
+[fill="#2563EB" i],[fill="#1D4ED8" i]{fill:#FF7900!important}
+[fill="#14B8A6" i]{fill:#26272B!important}
+[stroke="#2563EB" i],[stroke="#1D4ED8" i]{stroke:#FF7900!important}
+[stroke="#14B8A6" i]{stroke:#26272B!important}
+[stop-color="#2563EB" i],[stop-color="#1D4ED8" i]{stop-color:#FF7900!important}
+[stop-color="#14B8A6" i]{stop-color:#26272B!important}
+[stroke="#E2E8F0" i]{stroke:#D7D9DE!important}
+#top::before{background:radial-gradient(circle,rgba(255,121,0,.20),rgba(255,121,0,0) 68%)!important}
+#top::after{background:radial-gradient(circle,rgba(38,39,43,.13),rgba(38,39,43,0) 68%)!important}
+#top h1:not(.ml-grad){background:linear-gradient(90deg,#26272B,#E56A00,#FF7900,#26272B)!important;background-size:200% 100%!important;-webkit-background-clip:text!important;background-clip:text!important}
+.ml-grad{background:linear-gradient(90deg,#FF7900,#26272B,#FF7900)!important;background-size:200% 100%!important;-webkit-background-clip:text!important;background-clip:text!important}
+.ml-lift:hover,#top [style*="border-radius:1"]:hover{box-shadow:0 18px 40px -18px rgba(255,121,0,.35)}
+/* craft: no decorative gradient washes or shimmer text */
+#top::before,#top::after{display:none!important}
+#top h1:not(.ml-grad){background:none!important;-webkit-text-fill-color:currentColor!important;animation:none!important}
+/* theme layer 2: tints and hero gradients */
+[style*="gradient" i][style*="EFF6FF" i],[style*="gradient" i][style*="DBEAFE" i]{background:linear-gradient(135deg,#FFF1E3,#F3F4F6)!important}
+[style*="radial-gradient(circle,rgba(37,99,235" i]{background:radial-gradient(circle,rgba(255,121,0,.22),rgba(255,121,0,0) 68%)!important}
+[style*="radial-gradient(circle,rgba(20,184,166" i]{background:radial-gradient(circle,rgba(38,39,43,.14),rgba(38,39,43,0) 68%)!important}
+[style*="linear-gradient(rgba(37,99,235" i]{background-image:linear-gradient(rgba(38,39,43,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(38,39,43,.05) 1px,transparent 1px)!important}
+
+</style>
+
+</head>
+<body>
+
+<div id="top" style="width:100%;background:#F8FAFC;color:#0F172A;font-family:'Inter','Noto Sans Bengali',sans-serif;line-height:1.6">
+
+<div style="background:#FFFFFF;border-bottom:1px solid #E2E8F0">
+<div style="max-width:1280px;margin:0 auto;padding:16px 48px;box-sizing:border-box;display:flex;align-items:center;justify-content:space-between">
+<a href="/" style="display:flex;align-items:center;gap:10px;color:#0F172A;text-decoration:none">
+<svg width="36" height="36" viewBox="0 0 36 36" aria-hidden="true"><rect width="36" height="36" rx="10" fill="#2563EB"/><path d="M9 25V11l9 9 9-9v14" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><circle cx="18" cy="27" r="2.5" fill="#14B8A6"/></svg>
+<span style="font-size:18px;font-weight:700">ModinaLink</span></a>
+<span style="font-size:14px;color:#475569">বাংলা | EN</span>
+</div>
+</div>
+
+<div style="max-width:1280px;margin:0 auto;padding:56px 48px 80px;box-sizing:border-box;display:flex;flex-wrap:wrap;gap:40px;align-items:flex-start;justify-content:center">
+
+<div style="flex:1 1 400px;max-width:480px;min-width:0;background:#FFFFFF;border:1px solid #E2E8F0;border-radius:16px;padding:32px;display:flex;flex-direction:column;gap:16px">
+<h1 style="margin:0;font-size:28px">লগইন করুন</h1>
+<div style="font-size:14px;color:#475569;line-height:1.7">কাস্টমার পোর্টাল শুধু নিবন্ধিত গ্রাহকের জন্য। পাসওয়ার্ড কাউকে বলবেন না, আমরা কখনো চাইব না।</div>
+<div><label for="l1" style="display:block;font-size:14px;font-weight:600;margin-bottom:6px">ইমেইল</label><input id="l1" type="text" placeholder="name@company.com" style="width:100%;box-sizing:border-box;height:48px;border:1px solid #CBD5E1;border-radius:12px;padding:0 14px;font-size:15px;font-family:inherit"></div>
+<div><label for="l2" style="display:block;font-size:14px;font-weight:600;margin-bottom:6px">পাসওয়ার্ড</label><input id="l2" type="password" value="password" style="width:100%;box-sizing:border-box;height:48px;border:2px solid #B91C1C;border-radius:12px;padding:0 14px;font-size:15px;font-family:inherit"><div style="font-size:12px;color:#B91C1C;margin-top:4px">ইমেইল বা পাসওয়ার্ড মেলেনি (Error state উদাহরণ)</div></div>
+<div style="display:flex;justify-content:space-between;font-size:14px"><span style="display:inline-flex;gap:8px;align-items:center"><span style="width:18px;height:18px;border:1px solid #CBD5E1;border-radius:5px"></span>মনে রাখুন</span><a href="#top" style="font-weight:600">পাসওয়ার্ড ভুলে গেছেন?</a></div>
+<a href="/design/portal" style="background:#2563EB;color:#FFFFFF;border-radius:12px;padding:14px;text-align:center;font-size:16px;font-weight:600">লগইন</a>
+<div style="border-top:1px solid #F1F5F9;padding-top:14px;font-size:14px;color:#475569;text-align:center">নতুন গ্রাহক? <a href="#register" style="font-weight:600">অ্যাকাউন্ট খুলুন</a></div>
+</div>
+
+<div style="flex:1 1 400px;max-width:480px;min-width:0;display:flex;flex-direction:column;gap:24px">
+<div id="register" style="background:#FFFFFF;border:1px solid #E2E8F0;border-radius:16px;padding:32px;display:flex;flex-direction:column;gap:14px">
+<h2 style="margin:0;font-size:22px">অ্যাকাউন্ট খুলুন</h2>
+<div><label for="r1" style="display:block;font-size:14px;font-weight:600;margin-bottom:6px">নাম *</label><input id="r1" type="text" style="width:100%;box-sizing:border-box;height:46px;border:1px solid #CBD5E1;border-radius:12px;padding:0 14px;font-size:15px;font-family:inherit"></div>
+<div><label for="r2" style="display:block;font-size:14px;font-weight:600;margin-bottom:6px">ইমেইল *</label><input id="r2" type="text" style="width:100%;box-sizing:border-box;height:46px;border:1px solid #CBD5E1;border-radius:12px;padding:0 14px;font-size:15px;font-family:inherit"></div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px"><div><label for="r3" style="display:block;font-size:14px;font-weight:600;margin-bottom:6px">দেশ *</label><input id="r3" type="text" placeholder="Bangladesh" style="width:100%;box-sizing:border-box;height:46px;border:1px solid #CBD5E1;border-radius:12px;padding:0 14px;font-size:15px;font-family:inherit"></div><div><label for="r4" style="display:block;font-size:14px;font-weight:600;margin-bottom:6px">টাইমজোন</label><input id="r4" type="text" placeholder="Asia/Dhaka" style="width:100%;box-sizing:border-box;height:46px;border:1px solid #CBD5E1;border-radius:12px;padding:0 14px;font-size:15px;font-family:inherit"></div></div>
+<div><label for="r5" style="display:block;font-size:14px;font-weight:600;margin-bottom:6px">প্রতিষ্ঠানের নাম (ঐচ্ছিক)</label><input id="r5" type="text" style="width:100%;box-sizing:border-box;height:46px;border:1px solid #CBD5E1;border-radius:12px;padding:0 14px;font-size:15px;font-family:inherit"></div>
+<div style="display:flex;gap:10px;font-size:13px;color:#475569;line-height:1.7"><span style="flex:none;width:18px;height:18px;border-radius:5px;background:#2563EB;color:#FFFFFF;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700">✓</span><span>Terms ও Privacy Policy পড়েছি ও সম্মত। মার্কেটিং বার্তা আলাদা অপ্ট-ইন।</span></div>
+<span style="background:#2563EB;color:#FFFFFF;border-radius:12px;padding:13px;text-align:center;font-size:16px;font-weight:600">নিবন্ধন করুন</span>
+</div>
+
+<div style="background:#FFFFFF;border:1px solid #E2E8F0;border-radius:16px;padding:28px;display:flex;flex-direction:column;gap:12px">
+<h2 style="margin:0;font-size:20px">দুই-ধাপের যাচাই (2FA)</h2>
+<div style="font-size:14px;color:#475569;line-height:1.7">আপনার অথেন্টিকেটর অ্যাপের ৬ অঙ্কের কোডটি দিন।</div>
+<div style="display:flex;gap:10px"><span style="flex:1;min-width:0;height:52px;border:1px solid #CBD5E1;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:600">•</span><span style="flex:1;min-width:0;height:52px;border:1px solid #CBD5E1;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:600">•</span><span style="flex:1;min-width:0;height:52px;border:1px solid #CBD5E1;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:600"></span><span style="flex:1;min-width:0;height:52px;border:1px solid #CBD5E1;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:600"></span><span style="flex:1;min-width:0;height:52px;border:1px solid #CBD5E1;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:600"></span><span style="flex:1;min-width:0;height:52px;border:1px solid #CBD5E1;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:600"></span></div>
+<div style="font-size:13px;color:#475569">কোড হারিয়ে গেলে ব্যাকআপ কোড ব্যবহার করুন।</div>
+</div>
+</div>
+</div>
+</div>
+
+<script src="/design-app.js" defer></script>
+</body>
+</html>
