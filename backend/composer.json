@@ -1,13 +1,13 @@
 {
   "name": "modinalink/backend",
   "type": "project",
-  "description": "ModinaLink IT Solution API (Laravel 11)",
+  "description": "ModinaLink IT Solution API (Laravel 12)",
   "license": "proprietary",
   "require": {
     "php": "^8.2",
-    "laravel/framework": "^11.31",
+    "laravel/framework": "^12.0",
     "laravel/sanctum": "^4.0",
-    "laravel/tinker": "^2.9"
+    "laravel/tinker": "^2.10"
   },
   "require-dev": {
     "fakerphp/faker": "^1.23",
