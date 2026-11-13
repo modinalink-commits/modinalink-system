@@ -1,0 +1,283 @@
+/* ModinaLink: fills the design Portal and Admin pages with real data from the API.
+   Only what the backend really has is shown. Modules without a backend yet say so plainly. */
+(function () {
+  var path = location.pathname.replace(/\/+$/, '') || '/';
+  var isAdmin = path === '/admin';
+  var isPortal = path === '/portal';
+  if (!isAdmin && !isPortal) return;
+
+  var TOKEN = null;
+  try { TOKEN = localStorage.getItem('ml_token'); } catch (e) {}
+  if (!TOKEN) { location.replace('/login'); return; }
+
+  function api(p, opt) {
+    opt = opt || {};
+    return fetch('/api' + p, {
+      method: opt.method || 'GET',
+      headers: { Accept: 'application/json', 'Content-Type': 'application/json', Authorization: 'Bearer ' + TOKEN },
+      body: opt.body ? JSON.stringify(opt.body) : undefined
+    }).then(function (r) {
+      if (r.status === 401) { try { localStorage.removeItem('ml_token'); } catch (e) {} location.replace('/login'); throw new Error('auth'); }
+      return r.json().catch(function () { return {}; }).then(function (j) { return { ok: r.ok, status: r.status, j: j }; });
+    });
+  }
+  function rows(res) { var j = res.j; return Array.isArray(j) ? j : (j && j.data) || []; }
+  function all(sel, root) { return Array.prototype.slice.call((root || document).querySelectorAll(sel)); }
+  function norm(s) { return (s || '').replace(/\s+/g, ' ').trim(); }
+  function byText(sel, t, partial) {
+    return all(sel).filter(function (e) { var x = norm(e.textContent); return partial ? (e.children.length === 0 && x.indexOf(t) === 0) : x === t; })[0];
+  }
+  function leaf(sel, t) { // element whose own text is t
+    return all(sel).filter(function (e) { return e.children.length === 0 && norm(e.textContent) === t; })[0];
+  }
+  function bdt(n) { return '৳ ' + Number(n || 0).toLocaleString('bn-BD'); }
+  function dt(s) { if (!s) return '—'; var d = new Date(s); return isNaN(d) ? String(s) : d.toLocaleDateString('bn-BD', { day: 'numeric', month: 'short', year: 'numeric' }); }
+  function dtt(s) { if (!s) return '—'; var d = new Date(s); return isNaN(d) ? String(s) : d.toLocaleString('bn-BD', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }); }
+  var DOT = { paid: '#16A34A', deployed: '#16A34A', closed: '#16A34A', active: '#16A34A', approved: '#16A34A', issued: '#F59E0B', pending: '#F59E0B', review: '#F59E0B', staging_ready: '#F59E0B', needs_info: '#F59E0B', rejected: '#DC2626', void: '#94A3B8', failed: '#DC2626', new: '#2563EB', submitted: '#2563EB' };
+  function setStatus(cell, status) {
+    var dot = cell.querySelector('span span'); var wrap = cell.querySelector('span');
+    if (dot) dot.style.background = DOT[status] || '#94A3B8';
+    if (wrap) { for (var i = wrap.childNodes.length - 1; i >= 0; i--) if (wrap.childNodes[i].nodeType === 3) wrap.removeChild(wrap.childNodes[i]); wrap.appendChild(document.createTextNode(status)); }
+  }
+  function link(el, href, title) {
+    var a = document.createElement('a'); a.href = href; if (title) a.title = title;
+    a.style.cssText = 'color:inherit;text-decoration:none'; a.appendChild(el); return a;
+  }
+  function soon(card, label) { // replace a card's body with an honest "not built yet" note
+    all(':scope > div', card).forEach(function (d, i) { if (i > 0) d.remove(); });
+    var n = document.createElement('div');
+    n.style.cssText = 'font-size:14px;color:#475569;line-height:1.7;margin-top:8px';
+    n.textContent = label || 'এই মডিউল এখনো চালু হয়নি। চালু হলে এখানে আপনার আসল তথ্য দেখাবে।';
+    card.appendChild(n);
+  }
+  function note(anchor, msg, ok) {
+    var n = document.getElementById('ml-note2');
+    if (!n) { n = document.createElement('div'); n.id = 'ml-note2'; n.setAttribute('role', 'status'); n.style.cssText = 'margin-top:12px;font-size:14px;font-weight:600;line-height:1.6'; anchor.parentNode.insertBefore(n, anchor.nextSibling); }
+    n.style.color = ok ? '#166534' : '#B91C1C'; n.textContent = msg;
+  }
+  function press(el, fn) {
+    if (!el) return;
+    el.style.cursor = 'pointer';
+    if (!/^(A|BUTTON)$/.test(el.tagName)) { el.setAttribute('role', 'button'); el.setAttribute('tabindex', '0'); }
+    el.addEventListener('click', function (e) { e.preventDefault(); fn(el); });
+    el.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fn(el); } });
+  }
+  function nav(map) {
+    all('a[href="#top"]').forEach(function (a) {
+      var t = norm(a.textContent);
+      if (map[t]) { a.setAttribute('href', map[t]); }
+      else if (!a.closest('[id="list"]')) { a.setAttribute('aria-disabled', 'true'); a.title = 'এই মডিউল এখনো চালু হয়নি'; a.style.opacity = '.6'; }
+    });
+  }
+  function logoutLink() {
+    var host = all('a').filter(function (a) { return /Profile|Settings/.test(norm(a.textContent)); })[0];
+    if (!host) return;
+    var b = host.cloneNode(true); b.textContent = 'লগআউট'; b.href = '#'; b.style.opacity = '1';
+    b.addEventListener('click', function (e) { e.preventDefault(); api('/auth/logout', { method: 'POST' }).catch(function () {}).then(function () { try { localStorage.removeItem('ml_token'); } catch (x) {} location.replace('/login'); }); });
+    host.parentNode.appendChild(b);
+  }
+
+  /* ------------------------------ PORTAL ------------------------------ */
+  function portal() {
+    nav({ 'ওভারভিউ': '/portal', Overview: '/portal', Invoices: '/portal/invoices', Payments: '/portal/invoices', 'Support Tickets': '/portal/tickets/new', 'Subscription ও Renewals': '/portal/subscriptions' });
+    logoutLink();
+    var me = api('/me'), tk = api('/tickets'), iv = api('/invoices'), sb = api('/subscriptions');
+    Promise.all([me, tk, iv, sb]).then(function (r) {
+      var user = (r[0].j && r[0].j.user) || {}, tickets = rows(r[1]), invs = rows(r[2]), subs = rows(r[3]);
+      var sub = leaf('div', 'আপনার অথবা অনুমোদিত প্রতিষ্ঠানের তথ্য। নিচের সব তথ্য নমুনা (Sample data)।') || byText('div', 'আপনার অথবা অনুমোদিত প্রতিষ্ঠানের তথ্য', true);
+      if (sub) sub.textContent = (user.name || '') + (user.company ? ' · ' + user.company : '') + ' — আপনার অ্যাকাউন্টের আসল তথ্য। প্রজেক্ট, মাইলস্টোন ও ফাইল মডিউল এখনো চালু হয়নি।';
+
+      function kpi(label, val) { var l = leaf('div', label); if (l && l.nextElementSibling) l.nextElementSibling.textContent = val; }
+      var due = invs.filter(function (i) { return i.status === 'issued'; });
+      kpi('চলমান প্রজেক্ট', '—'); kpi('অনুমোদনের অপেক্ষায়', '—');
+      kpi('বকেয়া ইনভয়েস', String(due.length));
+      var next = subs.filter(function (s) { return s.status === 'active'; })[0];
+      kpi('রিনিউয়াল', next ? dt(next.renews_on) : '—');
+
+      var projTitle = leaf('div', '[প্রজেক্টের নাম] — মাইলস্টোন');
+      if (projTitle) { var pc = projTitle.parentNode.parentNode; pc.textContent = ''; var h = document.createElement('div'); h.style.cssText = 'font-size:17px;font-weight:700'; h.textContent = 'প্রজেক্ট ও মাইলস্টোন'; pc.appendChild(h); soon(pc, 'প্রজেক্ট ও মাইলস্টোন ট্র্যাকিং এখনো চালু হয়নি। চালু হলে এখানে ধাপে ধাপে অগ্রগতি দেখাবে।'); }
+      var apTitle = leaf('div', 'আপনার অনুমোদন প্রয়োজন');
+      if (apTitle) soon(apTitle.parentNode, 'কোনো অনুমোদনের অনুরোধ নেই। অনুমোদন মডিউল চালু হলে এখানে আসবে।');
+      if (apTitle) { var h2 = document.createElement('div'); h2.style.cssText = 'font-size:17px;font-weight:700'; h2.textContent = 'অনুমোদন'; apTitle.parentNode.insertBefore(h2, apTitle.parentNode.firstChild); apTitle.remove(); }
+      var au = leaf('div', 'Automation Status');
+      if (au) soon(au.parentNode, 'অটোমেশন রান এখনো চালু হয়নি।');
+
+      /* invoices */
+      var card = leaf('div', 'ইনভয়েস ও পেমেন্ট');
+      if (card) {
+        card = card.parentNode.parentNode;
+        var all_ = card.querySelector('a'); if (all_) all_.href = '/portal/invoices';
+        var grid = card.querySelector('div[style*="grid-template-columns"]');
+        var cells = all(':scope > div', grid);
+        var tpl = cells.slice(4, 8);
+        cells.slice(4).forEach(function (c) { c.remove(); });
+        if (!invs.length) {
+          var e = document.createElement('div'); e.style.cssText = 'grid-column:1/-1;padding:16px 12px;color:#475569'; e.textContent = 'এখনো কোনো ইনভয়েস নেই।'; grid.appendChild(e);
+        }
+        invs.slice(0, 6).forEach(function (iv_) {
+          var c = tpl.map(function (t) { return t.cloneNode(true); });
+          c[0].textContent = iv_.number; c[1].textContent = iv_.note || 'ইনভয়েস'; c[2].textContent = bdt(iv_.total_bdt);
+          setStatus(c[3], iv_.status);
+          c.forEach(function (x) { grid.appendChild(x); });
+        });
+        var hint = card.querySelector('div[style*="line-height:1.7"]'); if (hint) hint.textContent = 'ম্যানুয়াল পেমেন্ট স্টাফ যাচাইয়ের পরই paid হয়; স্ক্রিনশট থেকে স্বয়ংক্রিয়ভাবে নয়। পেমেন্ট করতে “সব দেখুন” চাপুন।';
+      }
+
+      /* support tickets list */
+      var stTitle = leaf('div', 'সাপোর্ট টিকেট');
+      if (stTitle) {
+        var sc = stTitle.parentNode; var rowsEl = all(':scope > div', sc).slice(1); var rt = rowsEl[0];
+        rowsEl.forEach(function (x) { x.remove(); });
+        if (!tickets.length) { var e2 = document.createElement('div'); e2.style.cssText = 'font-size:14px;color:#475569;padding:10px 0'; e2.textContent = 'এখনো কোনো টিকেট নেই।'; sc.appendChild(e2); }
+        tickets.slice(0, 8).forEach(function (t) {
+          var row = rt.cloneNode(true); var sp = row.querySelectorAll('span');
+          sp[0].textContent = t.number + ' · ' + t.title; sp[1].textContent = t.status;
+          var a = link(row, '#t-' + t.id); a.addEventListener('click', function (ev) { ev.preventDefault(); showTicket(t.id); });
+          sc.appendChild(a);
+        });
+      }
+      if (tickets[0]) showTicket(tickets[0].id); else clearTimeline();
+    }).catch(function () {});
+
+    function tlParts() {
+      var h = byText('div', 'টিকেট #', true) || byText('div', 'নিজের টিকেট', true);
+      return h;
+    }
+    function clearTimeline() {
+      var h = tlParts(); if (!h) return;
+      h.textContent = 'টিকেটের টাইমলাইন';
+      var card = h.parentNode.parentNode; var chip = card.querySelector('span'); if (chip) chip.textContent = '—';
+      var list = h.parentNode.nextElementSibling; if (list) { list.textContent = ''; var n = document.createElement('div'); n.style.cssText = 'font-size:14px;color:#475569'; n.textContent = 'টিকেট খুললে এখানে প্রতিটি ধাপ সময়সহ দেখাবে।'; list.appendChild(n); }
+      var box = card.lastElementChild; if (box && /সার্ভিসের বর্তমান অবস্থা/.test(box.textContent)) box.remove();
+    }
+    var tlTpl = null;
+    function showTicket(id) {
+      api('/tickets/' + id).then(function (r) {
+        var d = r.j; if (!d || !d.ticket) return;
+        var h = tlParts(); if (!h) return;
+        h.textContent = 'টিকেট ' + d.ticket.number + ' · টাইমলাইন';
+        var card = h.parentNode.parentNode; var chip = h.parentNode.querySelector('span'); if (chip) chip.textContent = d.ticket.status;
+        var list = h.parentNode.nextElementSibling;
+        if (!tlTpl) tlTpl = list.firstElementChild.cloneNode(true);
+        list.textContent = '';
+        var evs = d.events || [];
+        evs.forEach(function (ev) {
+          var it = tlTpl.cloneNode(true); var b = it.querySelector('b'); var sub = b.nextElementSibling;
+          b.textContent = ev.from_status ? ev.from_status + ' → ' + ev.to_status : 'টিকেট খোলা হয়েছে (' + ev.to_status + ')';
+          sub.textContent = dtt(ev.created_at); list.appendChild(it);
+        });
+        (d.messages || []).forEach(function (m) {
+          var it = tlTpl.cloneNode(true); var b = it.querySelector('b'); var sub = b.nextElementSibling;
+          b.textContent = m.author + (m.ai_assisted ? ' (AI-সহায়তায় প্রস্তুত)' : ''); sub.textContent = m.body; list.appendChild(it);
+        });
+        var box = card.lastElementChild;
+        if (box && /সার্ভিসের বর্তমান অবস্থা/.test(box.textContent)) {
+          box.textContent = ''; var bb = document.createElement('b'); bb.textContent = 'টিকেটের বর্তমান অবস্থা'; box.appendChild(bb); box.appendChild(document.createElement('br'));
+          box.appendChild(document.createTextNode(d.ticket.title + ' · ' + d.ticket.status + (d.ticket.staging_url ? ' · staging প্রস্তুত' : '')));
+          var a = document.createElement('a'); a.href = '/portal/tickets/' + id; a.textContent = ' বিস্তারিত ও উত্তর দিন'; a.style.fontWeight = '600'; box.appendChild(a);
+        }
+      }).catch(function () {});
+    }
+
+    /* new-ticket form */
+    var send = leaf('span', 'টিকেট পাঠান'), human = leaf('span', 'মানুষের সঙ্গে কথা বলতে চাই');
+    var t1 = document.getElementById('t1'), t2 = document.getElementById('t2'), t3 = document.getElementById('t3');
+    if (t1) t1.value = ''; if (t2) t2.value = ''; if (t1) t1.placeholder = 'আপনার সার্ভিস / ওয়েবসাইট'; if (t2) t2.placeholder = 'যেমন: সার্ভিস আপডেট, সমস্যা, নতুন ফিচার';
+    function type(v) { v = (v || '').toLowerCase(); return /bug|সমস্যা|ত্রুটি|error/.test(v) ? 'bug' : /ফিচার|feature|নতুন/.test(v) ? 'new_feature' : /সাপোর্ট|support|সাহায্য/.test(v) ? 'support' : 'change'; }
+    function submit(forceSupport) {
+      var body = (t3 && t3.value || '').trim(), svc = (t1 && t1.value || '').trim(), kind = (t2 && t2.value || '').trim();
+      if (!body) { note(send.parentNode, 'কী পরিবর্তন চান তা লিখুন।', false); return; }
+      var title = (svc ? svc + ' · ' : '') + (kind || (forceSupport ? 'সাপোর্ট' : 'সার্ভিস আপডেট'));
+      api('/tickets', { method: 'POST', body: { type: forceSupport ? 'support' : type(kind), title: title.slice(0, 190), description: (forceSupport ? '[মানুষের সঙ্গে কথা বলতে চান] ' : '') + body } }).then(function (r) {
+        if (r.ok) { note(send.parentNode, 'টিকেট ' + (r.j.number || '') + ' খোলা হয়েছে।', true); if (t3) t3.value = ''; setTimeout(function () { location.reload(); }, 900); }
+        else { var j = r.j || {}; var k = j.errors && Object.keys(j.errors)[0]; note(send.parentNode, k ? j.errors[k][0] : (j.message || 'পাঠানো যায়নি।'), false); }
+      });
+    }
+    press(send, function () { submit(false); }); press(human, function () { submit(true); });
+  }
+
+  /* ------------------------------- ADMIN ------------------------------ */
+  function admin() {
+    nav({ 'ড্যাশবোর্ড': '/admin', Dashboard: '/admin', Invoices: '/admin/invoices', Payments: '/admin/payments', Settings: '/admin/integrations', 'Support Tickets': '#board', Inquiries: '#list' });
+    logoutLink();
+    Promise.all([api('/me'), api('/admin/tickets'), api('/admin/leads'), api('/admin/invoices'), api('/admin/subscriptions'), api('/admin/audit')]).then(function (r) {
+      var user = (r[0].j && r[0].j.user) || {};
+      if (user.role === 'customer') { location.replace('/portal'); return; }
+      var tickets = rows(r[1]), leads = rows(r[2]), invs = rows(r[3]), subs = rows(r[4]);
+
+      var who = leaf('span', '[অ্যাডমিনের নাম] · Owner'); if (who) who.textContent = (user.name || '') + ' · ' + (user.role === 'admin' ? 'Owner' : 'Staff');
+      var sub = byText('div', 'অপারেশনস ওভারভিউ', true); if (sub) sub.textContent = 'অপারেশনস ওভারভিউ · আসল ডেটা; “—” = সংশ্লিষ্ট মডিউল এখনো চালু হয়নি';
+
+      function tile(label, val, href) {
+        var l = all('a[href="#list"] div').filter(function (d) { return norm(d.textContent).replace(/^\s*/, '').slice(-label.length) === label && d.children.length <= 1; })[0];
+        if (!l) return; var a = l.closest('a'); var v = a.children[1]; v.textContent = val;
+        if (href) a.setAttribute('href', href);
+      }
+      tile('Pending inquiry', String(leads.filter(function (l) { return l.status === 'new'; }).length), '#list');
+      tile('Open ticket', String(tickets.filter(function (t) { return t.status !== 'closed' && t.status !== 'rejected'; }).length), '#board');
+      tile('Payment due', String(invs.filter(function (i) { return i.status === 'issued'; }).length), '/admin/invoices');
+      var soonDate = Date.now() + 30 * 864e5;
+      tile('Renewal due', String(subs.filter(function (s) { return s.status === 'active' && new Date(s.renews_on).getTime() <= soonDate; }).length), '/admin/payments');
+
+      /* release board */
+      var bt = byText('div', 'টিকেট থেকে রিলিজ বোর্ড'); if (bt) { var bwrap = bt.parentNode.parentNode; bwrap.id = 'board'; }
+      var cols = { 'নতুন টিকেট': ['submitted'], 'স্কোপ যাচাই': ['scope_review', 'needs_info'], 'AI খসড়া (Staging)': ['drafting'], 'স্টাফ অনুমোদন': ['staging_ready'], 'ডিপ্লয় (Production)': ['approved', 'deployed'] };
+      Object.keys(cols).forEach(function (name) {
+        var h = leaf('div', name); if (!h) return; var col = h.parentNode; var tpl = h.nextElementSibling; if (!tpl) return;
+        all(':scope > div', col).slice(1).forEach(function (x) { x.remove(); });
+        var mine = tickets.filter(function (t) { return cols[name].indexOf(t.status) >= 0; }).slice(0, 5);
+        if (!mine.length) { var e = document.createElement('div'); e.style.cssText = 'font-size:13px;color:#475569;padding:6px 2px'; e.textContent = 'কোনো টিকেট নেই'; col.appendChild(e); }
+        mine.forEach(function (t) {
+          var c = document.createElement('a'); c.href = '/admin/tickets/' + t.id; c.style.cssText = tpl.getAttribute('style') + ';display:block;color:inherit;text-decoration:none';
+          var n = document.createElement('div'); n.style.fontWeight = '700'; n.textContent = t.number;
+          var s = document.createElement('div'); s.style.cssText = 'font-size:12px;color:#475569;margin-top:2px'; s.textContent = (t.user && (t.user.company || t.user.name) || '') + ' · ' + t.title + ' · ' + t.status;
+          c.appendChild(n); c.appendChild(s); col.appendChild(c);
+        });
+      });
+
+      /* inquiries */
+      var head = leaf('div', 'রেফারেন্স');
+      var si = document.getElementById('s1');
+      if (head) {
+        var grid = head.parentNode; var cells = all(':scope > div', grid); var tpl = cells.slice(5, 10);
+        var tplA = tpl[0].querySelector('a');
+        cells.slice(5).forEach(function (c) { c.remove(); });
+        var draw = function (q) {
+          all(':scope > div', grid).slice(5).forEach(function (c) { c.remove(); });
+          var list = leads.filter(function (l) { return !q || (l.name + ' ' + (l.company || '') + ' ' + (l.interest || '') + ' INQ-' + l.id).toLowerCase().indexOf(q.toLowerCase()) >= 0; });
+          if (!list.length) { var e = document.createElement('div'); e.style.cssText = 'grid-column:1/-1;padding:16px 12px;color:#475569'; e.textContent = q ? 'কিছু পাওয়া যায়নি।' : 'এখনো কোনো ইনকোয়ারি নেই।'; grid.appendChild(e); }
+          list.slice(0, 20).forEach(function (l) {
+            var c = tpl.map(function (t) { return t.cloneNode(true); });
+            var a = c[0].querySelector('a'); a.textContent = 'INQ-' + l.id; a.setAttribute('href', '#list'); a.title = [l.phone, l.email].filter(Boolean).join(' · ');
+            c[1].textContent = (l.name || '') + (l.company ? ' (' + l.company + ')' : '') + ' · ' + (l.interest || 'সাধারণ ইনকোয়ারি');
+            setStatus(c[2], l.status); c[3].textContent = '—'; c[4].textContent = dt(l.updated_at || l.created_at);
+            c.forEach(function (x) { grid.appendChild(x); });
+          });
+          var pg = byText('span', 'পৃষ্ঠা ১ / [N]'); if (pg) { pg.textContent = 'মোট ' + list.length + 'টি'; var ctl = pg.nextElementSibling; if (ctl) ctl.style.display = 'none'; }
+        };
+        draw('');
+        if (si) si.addEventListener('input', function () { draw(si.value.trim()); });
+      }
+      all('span').forEach(function (s) { var t = norm(s.textContent); if (s.children.length === 0 && (t === 'স্ট্যাটাস: সব' || t === 'অ্যাসাইনি: সব')) { s.style.opacity = '.6'; s.title = 'ফিল্টার শীঘ্রই'; } });
+
+      /* automation */
+      var au = leaf('div', 'AI Automation অপারেশনস');
+      if (au) { var ac = au.parentNode; all(':scope > div', ac).slice(2).forEach(function (x) { x.remove(); }); var n = document.createElement('div'); n.style.cssText = 'font-size:14px;color:#475569;line-height:1.7;margin-top:8px'; n.textContent = 'অটোমেশন রান এখনো চালু হয়নি।'; ac.appendChild(n); }
+
+      /* audit */
+      var at = leaf('div', 'অডিট লগ');
+      if (at) {
+        var ac2 = at.parentNode; var kids = all(':scope > div', ac2); var rt = kids[2]; kids.slice(2).forEach(function (x) { x.remove(); });
+        if (r[5].status === 403) { var n2 = document.createElement('div'); n2.style.cssText = 'font-size:14px;color:#475569;margin-top:8px'; n2.textContent = 'অডিট লগ শুধু অ্যাডমিন দেখতে পান।'; ac2.appendChild(n2); }
+        else {
+          var al = rows(r[5]).slice(0, 8);
+          if (!al.length) { var n3 = document.createElement('div'); n3.style.cssText = 'font-size:14px;color:#475569;margin-top:8px'; n3.textContent = 'এখনো কোনো রেকর্ড নেই।'; ac2.appendChild(n3); }
+          al.forEach(function (a) { var row = rt.cloneNode(true); var sp = row.querySelectorAll('span'); sp[0].textContent = a.action + (a.subject_type ? ' · ' + a.subject_type + (a.subject_id ? ' #' + a.subject_id : '') : ''); sp[1].textContent = (a.actor_id ? 'ব্যবহারকারী #' + a.actor_id : 'সিস্টেম') + ' · ' + dtt(a.created_at); ac2.appendChild(row); });
+        }
+      }
+    }).catch(function () {});
+  }
+
+  function start() { if (isPortal) portal(); else admin(); }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
+})();

@@ -124,7 +124,10 @@ const nextConfig = {
     return [{ source: '/register', destination: '/login#register', permanent: false }];
   },
   async rewrites() {
-    return { beforeFiles: designPages };
+    return { beforeFiles: designPages.concat([
+      { source: '/portal', destination: '/pages/Portal.html' },
+      { source: '/admin', destination: '/pages/Admin.html' },
+    ]) };
   },
 };
 export default nextConfig;
