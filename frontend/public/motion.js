@@ -44,6 +44,17 @@
     '.ml-art{pointer-events:none;position:absolute;z-index:0}',
     '.ml-step-on{animation:mlStep 6s ease-in-out infinite}',
     '#mlprog{position:fixed;top:0;left:0;height:3px;width:0;background:#FF7900;z-index:99999;transition:width .1s linear}',
+    '@keyframes mlLogo{from{stroke-dashoffset:1}to{stroke-dashoffset:0}}',
+    '@keyframes mlSplash{0%,70%{opacity:1}100%{opacity:0;visibility:hidden}}',
+        'svg[aria-label="ModinaLink"].ml-logo-go path{stroke-dasharray:1;animation:mlLogo .9s cubic-bezier(.5,0,.2,1) both}',
+    'svg[aria-label="ModinaLink"].ml-logo-go path+path{animation-delay:.45s}',
+    'a:has(>svg[aria-label="ModinaLink"]),div:has(>svg[aria-label="ModinaLink"]){transition:transform .25s ease}',
+    'a:has(>svg[aria-label="ModinaLink"]):hover{transform:scale(1.04)}',
+    '#mlsplash{position:fixed;inset:0;z-index:100000;background:#fff;display:flex;align-items:center;justify-content:center;pointer-events:none;animation:mlSplash 1.25s ease forwards}',
+    'input:focus,textarea:focus,select:focus{outline:none;border-color:#FF7900!important;box-shadow:0 0 0 3px rgba(255,121,0,.22);transition:box-shadow .2s ease,border-color .2s ease}',
+    'input,textarea,select{transition:box-shadow .2s ease,border-color .2s ease}',
+    '[role=status],[role=alert]{animation:mlRise .5s cubic-bezier(.2,.7,.2,1) both}',
+    '@keyframes mlRise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}',
     '@media (max-width:900px){.ml-art.ml-hide-sm{display:none}}',
     '@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}.ml-js .mlr{opacity:1;transform:none}.ml-draw{stroke-dasharray:none}}'
   ].join('\n');
@@ -283,17 +294,91 @@
     if (hdr) hdr.style.transition = 'box-shadow .25s ease';
   }
 
+
+  /* ---------- 11. Logo animation (brand mark draws itself) ---------- */
+  function logos() {
+    all('svg[aria-label="ModinaLink"]').forEach(function (sv) {
+      if (sv.dataset.mlL) return; sv.dataset.mlL = '1';
+      all('path', sv).forEach(function (p) { p.setAttribute('pathLength', '1'); });
+      if (!RM) {
+        sv.classList.add('ml-logo-go');
+        var host = sv.closest('a') || sv.parentNode;
+        function replay() { sv.classList.remove('ml-logo-go'); void sv.getBoundingClientRect(); sv.classList.add('ml-logo-go'); }
+        if (host) host.addEventListener('mouseenter', replay);
+      }
+    });
+  }
+  function splash() {
+    if (RM || /^\/(portal|admin)/.test(location.pathname)) return;
+    try { if (sessionStorage.getItem('mlSplash')) return; sessionStorage.setItem('mlSplash', '1'); } catch (e) { return; }
+    var s = d.createElement('div'); s.id = 'mlsplash'; s.setAttribute('aria-hidden', 'true');
+    s.innerHTML = '<svg width="150" height="86" viewBox="20 8 316 182" class="ml-logo-go" aria-label="ModinaLink"><g transform="translate(15 10)" fill="none" stroke-width="27" stroke-linecap="round" stroke-linejoin="round"><path pathLength="1" stroke="#26272B" d="M26 164 V57 C26 28 45 22 61 44 L110 108 Q120 122 132 107 L190 35 Q205 20 216 36 M158 111 V161"/><path pathLength="1" stroke="#FF7900" d="M216 36 V139 Q216 158 237 158 H300"/></g></svg>';
+    d.body.appendChild(s); setTimeout(function () { if (s.parentNode) s.parentNode.removeChild(s); }, 1400);
+  }
+  function logoWatermark() {
+    // big outlined brand mark slowly drawing itself behind the hero / CTA
+    var h1 = d.querySelector('h1'); if (!h1) return;
+    var sec = h1; while (sec && sec !== d.body && !(sec.style && sec.style.position === 'relative')) sec = sec.parentNode; if (!sec || sec === d.body || sec.dataset.mlWm) return; sec.dataset.mlWm = '1';
+    var w = svg('<svg viewBox="20 8 316 182" width="520" height="300"><g transform="translate(15 10)" fill="none" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" opacity=".10"><path class="ml-draw" style="stroke-dasharray:900;animation-duration:7s" stroke="#26272B" d="M26 164 V57 C26 28 45 22 61 44 L110 108 Q120 122 132 107 L190 35 Q205 20 216 36 M158 111 V161"/><path class="ml-draw" style="stroke-dasharray:900;animation-duration:7s;animation-delay:1.2s" stroke="#FF7900" d="M216 36 V139 Q216 158 237 158 H300"/></g></svg>', 'ml-art ml-hide-sm', 'left:38%;bottom:-40px');
+    sec.insertBefore(w, sec.firstChild.nextSibling || null);
+  }
+
+  /* ---------- 12. App mode (portal / admin / mobile admin): animate dynamic content ---------- */
+  function appMode() {
+    if (RM) return;
+    var root = d.getElementById('top') || d.body;
+    function pop(el, i) {
+      if (!el.animate || el.dataset.mlA) return; el.dataset.mlA = '1';
+      el.animate([{ opacity: 0, transform: 'translateY(12px)' }, { opacity: 1, transform: 'none' }], { duration: 420, delay: Math.min(i, 8) * 50, easing: 'cubic-bezier(.2,.7,.2,1)', fill: 'backwards' });
+    }
+    function fillBars(el) {
+      all('[style*="width:"][style*="%"]', el).forEach(function (b) {
+        var st = b.getAttribute('style') || ''; if (!/border-radius/.test(st) || b.offsetHeight > 16 || b.offsetHeight < 3 || b.dataset.mlB || !b.animate) return;
+        b.dataset.mlB = '1'; b.style.transformOrigin = 'left';
+        b.animate([{ transform: 'scaleX(0)' }, { transform: 'scaleX(1)' }], { duration: 900, easing: 'cubic-bezier(.2,.7,.2,1)' });
+      });
+    }
+    function count(el) {
+      all('div,span,b,strong', el).forEach(function (n) {
+        if (n.children.length || n.dataset.mlN) return; var t = (n.textContent || '').trim();
+        if (!/^\d[\d,]*$/.test(t) || parseFloat(getComputedStyle(n).fontSize) < 24) return;
+        n.dataset.mlN = t; var end = parseInt(t.replace(/,/g, ''), 10), t0 = performance.now();
+        (function tick(x) { var p = Math.min(1, (x - t0) / 800), v = Math.round(end * (1 - Math.pow(1 - p, 3))); n.textContent = v.toLocaleString('en-US'); if (p < 1) requestAnimationFrame(tick); else n.textContent = t; })(t0);
+      });
+    }
+    var mo = new MutationObserver(function (muts) {
+      var i = 0;
+      muts.forEach(function (m) {
+        Array.prototype.forEach.call(m.addedNodes, function (n) {
+          if (n.nodeType !== 1 || n.id === 'mlprog' || n.id === 'mlsplash') return;
+          if (n.offsetHeight > 24 || n.tagName === 'TR' || n.tagName === 'LI') pop(n, i++);
+          fillBars(n); count(n);
+        });
+      });
+    });
+    mo.observe(root, { childList: true, subtree: true });
+    // initial content
+    all('[style*="border-radius:1"]', root).slice(0, 60).forEach(function (el, i) { if (el.offsetHeight > 40) pop(el, i); });
+    fillBars(root); count(root);
+    var st2 = d.createElement('style'); st2.textContent = '#top [style*="border-radius:1"]{transition:box-shadow .25s ease,transform .25s ease}#top [style*="border-radius:1"]:hover{box-shadow:0 14px 32px -20px rgba(255,121,0,.35)}tr{transition:background .2s ease}tr:hover{background:rgba(255,121,0,.05)}'; d.head.appendChild(st2);
+  }
+
   /* ---------- run ---------- */
   function run() {
+    var APP = /^\/(portal|admin)/.test(location.pathname) || !!d.querySelector('script[src="/portal-app.js"]');
+    try { logos(); } catch (e) {}
+    if (APP) { try { appMode(); } catch (e) {} try { chrome(); } catch (e) {} return; }
+    try { splash(); } catch (e) {}
     try { scenes(); } catch (e) {}
     try { heroArt(); } catch (e) {}
+    try { logoWatermark(); } catch (e) {}
     try { mainExtras(); } catch (e) {}
     try { iconAnim(); } catch (e) {}
     try { dots(); } catch (e) {}
-    if (!RM) { try { chrome(); } catch (e) {} try { reveal(); } catch (e) {} try { counters(); } catch (e) {} }
-    else { try { reveal(); } catch (e) {} }
+    if (!RM) { try { chrome(); } catch (e) {} try { counters(); } catch (e) {} }
+    try { reveal(); } catch (e) {}
   }
   if (d.readyState === 'loading') d.addEventListener('DOMContentLoaded', run); else run();
   // content hydrated later by other scripts (prices, filters)
-  setTimeout(function () { try { scenes(); dots(); } catch (e) {} }, 1500);
+  setTimeout(function () { try { scenes(); dots(); logos(); } catch (e) {} }, 1500);
 })();
