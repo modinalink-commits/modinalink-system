@@ -275,7 +275,76 @@
           al.forEach(function (a) { var row = rt.cloneNode(true); var sp = row.querySelectorAll('span'); sp[0].textContent = a.action + (a.subject_type ? ' · ' + a.subject_type + (a.subject_id ? ' #' + a.subject_id : '') : ''); sp[1].textContent = (a.actor_id ? 'ব্যবহারকারী #' + a.actor_id : 'সিস্টেম') + ' · ' + dtt(a.created_at); ac2.appendChild(row); });
         }
       }
+      adminViews(user);
     }).catch(function () {});
+  }
+
+  /* ---------------------- ADMIN: working sections ---------------------- */
+  function adminViews(user) {
+    var h1 = document.querySelector('h1'); if (!h1) return;
+    var header = h1.parentNode.parentNode, col = header.parentNode;
+    var dash = all(':scope > *', col).filter(function (x) { return x !== header; });
+    var view = document.createElement('div'); view.style.cssText = 'display:none;flex-direction:column;gap:16px'; col.appendChild(view);
+    var CARD = 'background:#FFFFFF;border:1px solid #E2E8F0;border-radius:16px;padding:24px;overflow-x:auto';
+    var BTN = 'border:1px solid #CBD5E1;border-radius:10px;padding:0 12px;min-height:36px;font-size:13px;font-weight:600;background:#fff;color:#0F172A;cursor:pointer;font-family:inherit';
+    function T(tag, css, text) { var e = document.createElement(tag); if (css) e.style.cssText = css; if (text != null) e.textContent = text; return e; }
+    function table(cols, data, actions) {
+      var card = T('div', CARD);
+      if (!data.length) { card.appendChild(T('div', 'font-size:14px;color:#475569', 'কোনো রেকর্ড নেই।')); return card; }
+      var g = T('div', 'display:grid;grid-template-columns:repeat(' + (cols.length + (actions ? 1 : 0)) + ',minmax(110px,1fr));font-size:13px;min-width:' + ((cols.length + 1) * 120) + 'px');
+      cols.concat(actions ? [{ h: 'কাজ' }] : []).forEach(function (c) { g.appendChild(T('div', 'padding:10px 12px;font-weight:700;color:#475569;border-bottom:1px solid #E2E8F0', c.h)); });
+      data.forEach(function (row) {
+        cols.forEach(function (c) { var v = c.v(row); var cell = T('div', 'padding:12px;border-bottom:1px solid #F1F5F9;word-break:break-word'); if (c.s) { cell.appendChild(T('span', 'display:inline-flex;gap:6px;align-items:center;font-weight:600')); cell.firstChild.appendChild(T('span', 'width:8px;height:8px;border-radius:999px;background:' + (DOT[v] || '#94A3B8'))); cell.firstChild.appendChild(document.createTextNode(v)); } else cell.textContent = v; g.appendChild(cell); });
+        if (actions) { var ac = T('div', 'padding:8px 12px;border-bottom:1px solid #F1F5F9;display:flex;gap:6px;flex-wrap:wrap'); actions(row, ac); g.appendChild(ac); }
+      });
+      card.appendChild(g); return card;
+    }
+    function btn(label, fn) { var b = T('button', BTN, label); b.type = 'button'; b.addEventListener('click', function () { b.disabled = true; fn(b); }); return b; }
+    function msg(t, ok) { var m = T('div', 'font-size:14px;font-weight:600;color:' + (ok ? '#166534' : '#B91C1C'), t); m.setAttribute('role', 'status'); return m; }
+    function act(path, body, method, label, reload) {
+      return api(path, { method: method || 'POST', body: body }).then(function (r) {
+        if (r.ok) { show(reload); } else { var j = r.j || {}; var k = j.errors && Object.keys(j.errors)[0]; alert_(k ? j.errors[k][0] : (j.message || 'হয়নি')); }
+      });
+    }
+    function alert_(t) { var old = view.querySelector('[data-err]'); if (old) old.remove(); var m = msg(t, false); m.setAttribute('data-err', '1'); view.insertBefore(m, view.firstChild.nextSibling); }
+    function fmtU(r) { return r.user ? (r.user.company || r.user.name) : '—'; }
+
+    var V = {
+      customers: { t: 'Customers', load: function () { return api('/admin/users').then(function (r) { return table([{ h: 'নাম', v: function (u) { return u.name; } }, { h: 'ইমেইল', v: function (u) { return u.email || '—'; } }, { h: 'ফোন', v: function (u) { return u.phone || '—'; } }, { h: 'প্রতিষ্ঠান', v: function (u) { return u.company || '—'; } }, { h: 'ভূমিকা', v: function (u) { return u.role; } }, { h: 'যোগ দেন', v: function (u) { return dt(u.created_at); } }], rows(r)); }); } },
+      invoices: { t: 'Invoices', load: function () { return api('/admin/invoices').then(function (r) { return table([{ h: 'ইনভয়েস', v: function (i) { return i.number; } }, { h: 'গ্রাহক', v: fmtU }, { h: 'পরিমাণ', v: function (i) { return bdt(i.total_bdt); } }, { h: 'অবস্থা', v: function (i) { return i.status; }, s: 1 }, { h: 'শেষ তারিখ', v: function (i) { return dt(i.due_date); } }], rows(r), function (i, c) {
+        if (i.status === 'draft') c.appendChild(btn('ইস্যু করুন', function () { act('/admin/invoices/' + i.id + '/issue', null, 'POST', '', 'invoices'); }));
+        if (i.status === 'draft' || i.status === 'issued') c.appendChild(btn('বাতিল', function () { act('/admin/invoices/' + i.id + '/void', null, 'POST', '', 'invoices'); }));
+      }); }); } },
+      payments: { t: 'Payments', load: function () { return api('/admin/payments').then(function (r) { return table([{ h: 'ইনভয়েস', v: function (p) { return p.invoice ? p.invoice.number : '—'; } }, { h: 'গ্রাহক', v: function (p) { return p.user ? p.user.name : '—'; } }, { h: 'মাধ্যম', v: function (p) { return p.gateway; } }, { h: 'পরিমাণ', v: function (p) { return bdt(p.amount_bdt); } }, { h: 'রেফারেন্স', v: function (p) { return p.proof_reference || p.gateway_txn_id || '—'; } }, { h: 'অবস্থা', v: function (p) { return p.status; }, s: 1 }], rows(r), function (p, c) {
+        if (p.status === 'review' || p.status === 'pending') { c.appendChild(btn('যাচাই (paid)', function () { act('/admin/payments/' + p.id + '/verify', null, 'POST', '', 'payments'); })); c.appendChild(btn('বাতিল', function () { act('/admin/payments/' + p.id + '/reject', null, 'POST', '', 'payments'); })); }
+      }); }); } },
+      renewals: { t: 'Renewals', load: function () { return api('/admin/subscriptions').then(function (r) { return table([{ h: 'সার্ভিস', v: function (s_) { return s_.name; } }, { h: 'গ্রাহক', v: function (s_) { return s_.user ? s_.user.name : '—'; } }, { h: 'রিনিউয়াল', v: function (s_) { return dt(s_.renews_on); } }, { h: 'পরিমাণ', v: function (s_) { return bdt(s_.amount_bdt); } }, { h: 'অবস্থা', v: function (s_) { return s_.status; }, s: 1 }], rows(r)); }); } },
+      tickets: { t: 'Support Tickets', load: function () { return api('/admin/tickets').then(function (r) { return table([{ h: 'টিকেট', v: function (t) { return t.number; } }, { h: 'গ্রাহক', v: fmtU }, { h: 'বিষয়', v: function (t) { return t.title; } }, { h: 'ধরন', v: function (t) { return t.type; } }, { h: 'অবস্থা', v: function (t) { return t.status; }, s: 1 }, { h: 'হালনাগাদ', v: function (t) { return dt(t.updated_at); } }], rows(r), function (t, c) { var a = T('a', BTN + ';display:inline-flex;align-items:center;text-decoration:none', 'খুলুন'); a.href = '/admin/tickets/' + t.id; c.appendChild(a); }); }); } },
+      inquiries: { t: 'Inquiries', load: function () { return api('/admin/leads').then(function (r) { return table([{ h: 'নাম', v: function (l) { return l.name; } }, { h: 'যোগাযোগ', v: function (l) { return [l.phone, l.email].filter(Boolean).join(' · ') || '—'; } }, { h: 'আগ্রহ', v: function (l) { return l.interest || '—'; } }, { h: 'বার্তা', v: function (l) { return l.message || '—'; } }, { h: 'অবস্থা', v: function (l) { return l.status; }, s: 1 }, { h: 'তারিখ', v: function (l) { return dt(l.created_at); } }], rows(r), function (l, c) {
+        ['contacted', 'won', 'lost'].forEach(function (st) { if (l.status !== st) c.appendChild(btn(st, function () { act('/admin/leads/' + l.id, { status: st }, 'PATCH', '', 'inquiries'); })); });
+      }); }); } },
+      services: { t: 'Services ও Price List', load: function () { return fetch('/api/prices', { headers: { Accept: 'application/json' } }).then(function (r) { return r.json(); }).then(function (j) { var it = (j && j.items) || []; var cols = it[0] ? Object.keys(it[0]).filter(function (k) { return !/^(id|created_at|updated_at|sort|is_active)$/.test(k); }).slice(0, 6) : []; return table(cols.map(function (k) { return { h: k, v: function (x) { var v = x[k]; return v == null ? '—' : typeof v === 'object' ? JSON.stringify(v) : String(v); } }; }), it); }); } }
+    };
+    var MAP = { Customers: 'customers', Invoices: 'invoices', Payments: 'payments', Renewals: 'renewals', 'Support Tickets': 'tickets', Inquiries: 'inquiries', Services: 'services', Products: 'services' };
+    var SOON = ['Quotes', 'Orders', 'Projects', 'Milestones', 'Automation Runs', 'Content'];
+    function setActive(a) { all('a').forEach(function (x) { if (x.getAttribute('data-nav')) x.style.fontWeight = x === a ? '700' : ''; }); }
+    function show(key, a) {
+      var d = V[key]; h1.textContent = d ? d.t : key; setActive(a);
+      dash.forEach(function (x) { x.style.display = 'none'; }); view.style.display = 'flex'; view.textContent = '';
+      view.appendChild(T('div', 'font-size:14px;color:#475569', 'লোড হচ্ছে…'));
+      if (!d) { view.textContent = ''; var c = T('div', CARD); c.appendChild(T('div', 'font-size:17px;font-weight:700', key)); c.appendChild(T('div', 'font-size:14px;color:#475569;line-height:1.7;margin-top:8px', 'এই মডিউলের ব্যাকএন্ড এখনো তৈরি হয়নি (পরের ধাপে আসছে)। তৈরি হলে এখানে আসল রেকর্ড, ফিল্টার ও কাজ থাকবে।')); view.appendChild(c); return; }
+      d.load().then(function (node) { view.textContent = ''; view.appendChild(node); }).catch(function () { view.textContent = 'লোড করা যায়নি।'; });
+    }
+    function showDash(a) { h1.textContent = 'ড্যাশবোর্ড'; setActive(a); view.style.display = 'none'; dash.forEach(function (x) { x.style.display = ''; }); }
+    all('a').forEach(function (a) {
+      var t = norm(a.textContent);
+      var key = MAP[t] || (SOON.indexOf(t) >= 0 ? t : null);
+      if (a.getAttribute('href') !== '#top' && t !== 'Inquiries' && t !== 'Support Tickets' && t !== 'Invoices' && t !== 'Payments') return;
+      if (key) { a.setAttribute('data-nav', '1'); a.removeAttribute('aria-disabled'); a.removeAttribute('title'); a.style.opacity = '1'; a.href = '#' + key.toLowerCase().replace(/\s+/g, '-'); a.addEventListener('click', function (e) { e.preventDefault(); show(MAP[t] || key, a); }); }
+      else if (t === 'ড্যাশবোর্ড' || t === 'Dashboard') { a.setAttribute('data-nav', '1'); a.addEventListener('click', function (e) { e.preventDefault(); showDash(a); }); }
+    });
+    all('a[href="#list"]').forEach(function (a) { a.addEventListener('click', function () { }); });
+    var tl = byText('div', 'ইনকোয়ারি ও কোটেশন'); 
   }
 
   function start() { if (isPortal) portal(); else admin(); }
