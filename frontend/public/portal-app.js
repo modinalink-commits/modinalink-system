@@ -202,10 +202,10 @@
     var BTN = 'border:1px solid #CBD5E1;border-radius:10px;padding:0 14px;min-height:44px;font-size:14px;font-weight:600;background:#fff;color:#0F172A;cursor:pointer;font-family:inherit';
     var PRI = 'background:#FF7900;color:#26272B;border:0;border-radius:10px;padding:0 16px;min-height:44px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit';
     var IN = 'width:100%;box-sizing:border-box;min-height:44px;border:1px solid #CBD5E1;border-radius:12px;padding:0 12px;font-size:14px;font-family:inherit;background:#fff';
-    function chip(st) { var c = T('span', 'display:inline-flex;gap:6px;align-items:center;font-size:12px;font-weight:600'); c.appendChild(T('span', 'width:8px;height:8px;border-radius:999px;background:' + (DOT[st] || (st === 'completed' ? '#16A34A' : st === 'awaiting_client' ? '#F59E0B' : '#94A3B8')))); c.appendChild(document.createTextNode(st)); return c; }
+    function chip(st) { var c = T('span', 'display:inline-flex;gap:6px;align-items:center;font-size:14px;font-weight:600'); c.appendChild(T('span', 'width:8px;height:8px;border-radius:999px;background:' + (DOT[st] || (st === 'completed' ? '#16A34A' : st === 'awaiting_client' ? '#F59E0B' : '#94A3B8')))); c.appendChild(document.createTextNode(st)); return c; }
     function empty(t) { return T('div', 'font-size:14px;color:#475569;line-height:1.7', t); }
     function card(title) { var c = T('div', CARD + ';display:flex;flex-direction:column;gap:12px'); if (title) c.appendChild(T('div', 'font-size:17px;font-weight:700', title)); return c; }
-    function msRow(m) { var r = T('div', 'display:flex;gap:12px;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #F1F5F9;font-size:14px;flex-wrap:wrap'); var l = T('div'); l.appendChild(T('div', 'font-weight:600', m.title)); l.appendChild(T('div', 'font-size:12px;color:#475569', (m.due_date ? 'শেষ তারিখ: ' + dt(m.due_date) : 'তারিখ ঠিক হয়নি') + (m.approved_at ? ' · অনুমোদিত ' + dt(m.approved_at) : '') + (m.client_note ? ' · আপনার নোট: ' + m.client_note : ''))); r.appendChild(l); r.appendChild(chip(m.status)); return r; }
+    function msRow(m) { var r = T('div', 'display:flex;gap:12px;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #F1F5F9;font-size:14px;flex-wrap:wrap'); var l = T('div'); l.appendChild(T('div', 'font-weight:600', m.title)); l.appendChild(T('div', 'font-size:14px;color:#475569', (m.due_date ? 'শেষ তারিখ: ' + dt(m.due_date) : 'তারিখ ঠিক হয়নি') + (m.approved_at ? ' · অনুমোদিত ' + dt(m.approved_at) : '') + (m.client_note ? ' · আপনার নোট: ' + m.client_note : ''))); r.appendChild(l); r.appendChild(chip(m.status)); return r; }
     function projectBlock(p) {
       var b = T('div', 'display:flex;flex-direction:column;gap:6px'); var h = T('div', 'display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap'); h.appendChild(T('div', 'font-size:16px;font-weight:700', p.name)); h.appendChild(chip(p.status)); b.appendChild(h);
       var bar = T('div', 'height:8px;border-radius:999px;background:#E2E8F0;overflow:hidden'); bar.setAttribute('role', 'progressbar'); bar.setAttribute('aria-label', 'অগ্রগতি'); bar.setAttribute('aria-valuenow', p.progress); bar.setAttribute('aria-valuemin', 0); bar.setAttribute('aria-valuemax', 100); bar.appendChild(T('div', 'height:100%;background:#FF7900;width:' + p.progress + '%')); b.appendChild(bar);
@@ -213,18 +213,18 @@
     }
     function approvalRow(x, done) {
       var r = T('div', 'border:1px solid #E2E8F0;border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:8px');
-      r.appendChild(T('div', 'font-weight:700;font-size:15px', x.m.title + ' — ' + x.p.name)); r.appendChild(T('div', 'font-size:13px;color:#475569;line-height:1.6', 'অনুমোদনের পর পরের ধাপ শুরু হবে। অনুমোদনের ইতিহাস সংরক্ষিত থাকে।'));
+      r.appendChild(T('div', 'font-weight:700;font-size:15px', x.m.title + ' — ' + x.p.name)); r.appendChild(T('div', 'font-size:14px;color:#475569;line-height:1.6', 'অনুমোদনের পর পরের ধাপ শুরু হবে। অনুমোদনের ইতিহাস সংরক্ষিত থাকে।'));
       var note = T('input', IN); note.type = 'text'; note.placeholder = 'পরিবর্তন চাইলে এখানে লিখুন'; note.setAttribute('aria-label', 'পরিবর্তনের নোট'); note.maxLength = 500; r.appendChild(note);
-      var msg = T('div', 'font-size:13px;font-weight:600;display:none'); msg.setAttribute('role', 'status');
+      var msg = T('div', 'font-size:14px;font-weight:600;display:none'); msg.setAttribute('role', 'status');
       var row = T('div', 'display:flex;gap:8px;flex-wrap:wrap'); var ok = T('button', PRI, 'অনুমোদন করুন'), ch = T('button', BTN, 'পরিবর্তন চান'); ok.type = ch.type = 'button'; row.appendChild(ok); row.appendChild(ch); r.appendChild(row); r.appendChild(msg);
-      function go(path, body) { ok.disabled = ch.disabled = true; api(path, { method: 'POST', body: body }).then(function (res) { if (res.ok) done(); else { ok.disabled = ch.disabled = false; msg.style.cssText = 'font-size:13px;font-weight:600;color:#B91C1C;display:block'; msg.textContent = (res.j && res.j.message) || 'হয়নি'; } }); }
+      function go(path, body) { ok.disabled = ch.disabled = true; api(path, { method: 'POST', body: body }).then(function (res) { if (res.ok) done(); else { ok.disabled = ch.disabled = false; msg.style.cssText = 'font-size:14px;font-weight:600;color:#B91C1C;display:block'; msg.textContent = (res.j && res.j.message) || 'হয়নি'; } }); }
       ok.addEventListener('click', function () { go('/my/milestones/' + x.m.id + '/approve'); });
-      ch.addEventListener('click', function () { if (!note.value.trim()) { msg.style.cssText = 'font-size:13px;font-weight:600;color:#B91C1C;display:block'; msg.textContent = 'কী পরিবর্তন চান তা লিখুন।'; return; } go('/my/milestones/' + x.m.id + '/request-changes', { note: note.value.trim() }); });
+      ch.addEventListener('click', function () { if (!note.value.trim()) { msg.style.cssText = 'font-size:14px;font-weight:600;color:#B91C1C;display:block'; msg.textContent = 'কী পরিবর্তন চান তা লিখুন।'; return; } go('/my/milestones/' + x.m.id + '/request-changes', { note: note.value.trim() }); });
       return r;
     }
     function tbl(cols, data) {
       var c = card(); if (!data.length) { c.appendChild(empty('কোনো রেকর্ড নেই।')); return c; } c.style.overflowX = 'auto';
-      var g = T('div', 'display:grid;grid-template-columns:repeat(' + cols.length + ',minmax(110px,1fr));font-size:13px;min-width:' + (cols.length * 120) + 'px'); cols.forEach(function (x) { g.appendChild(T('div', 'padding:10px 12px;font-weight:700;color:#475569;border-bottom:1px solid #E2E8F0', x.h)); });
+      var g = T('div', 'display:grid;grid-template-columns:repeat(' + cols.length + ',minmax(110px,1fr));font-size:14px;min-width:' + (cols.length * 120) + 'px'); cols.forEach(function (x) { g.appendChild(T('div', 'padding:10px 12px;font-weight:700;color:#475569;border-bottom:1px solid #E2E8F0', x.h)); });
       data.forEach(function (r) { cols.forEach(function (x) { var cell = T('div', 'padding:12px;border-bottom:1px solid #F1F5F9;word-break:break-word'); var v = x.v(r); if (v && v.nodeType) cell.appendChild(v); else if (x.s) cell.appendChild(chip(v)); else cell.textContent = v; g.appendChild(cell); }); }); c.appendChild(g); return c;
     }
     function blob(path, name) { return fetch('/api' + path, { headers: { Authorization: 'Bearer ' + TOKEN } }).then(function (r) { return r.blob(); }).then(function (b) { var a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = name; document.body.appendChild(a); a.click(); a.remove(); }); }
@@ -250,12 +250,12 @@
       milestones: ['Milestones', function () { var all_ = []; projs.forEach(function (p) { (p.milestones || []).forEach(function (m) { all_.push(Object.assign({ pname: p.name }, m)); }); }); return Promise.resolve(tbl([{ h: 'প্রজেক্ট', v: function (m) { return m.pname; } }, { h: 'ধাপ', v: function (m) { return m.title; } }, { h: 'শেষ তারিখ', v: function (m) { return dt(m.due_date); } }, { h: 'অবস্থা', v: function (m) { return m.status; }, s: 1 }], all_)); }],
       approvals: ['Approvals', function () { var b = T('div', 'display:flex;flex-direction:column;gap:12px'); var aw = awaiting(projs); if (!aw.length) { var ec = card(); ec.appendChild(empty('কোনো অনুমোদনের অনুরোধ নেই।')); b.appendChild(ec); } aw.forEach(function (x) { var c = card(); c.appendChild(approvalRow(x, function () { location.reload(); })); b.appendChild(c); }); var done = []; projs.forEach(function (p) { (p.milestones || []).forEach(function (m) { if (m.approved_at) done.push(Object.assign({ pname: p.name }, m)); }); }); b.appendChild(T('div', 'font-size:17px;font-weight:700;margin-top:8px', 'অনুমোদনের ইতিহাস')); b.appendChild(tbl([{ h: 'প্রজেক্ট', v: function (m) { return m.pname; } }, { h: 'ধাপ', v: function (m) { return m.title; } }, { h: 'অনুমোদনের তারিখ', v: function (m) { return dt(m.approved_at); } }], done)); return Promise.resolve(b); }],
       files: ['Files', function () { return api('/my/files').then(function (r) { var b = T('div', 'display:flex;flex-direction:column;gap:16px');
-        var f = card('ফাইল পাঠান (সর্বোচ্চ ১০ MB)'); var fm = T('form', 'display:flex;gap:8px;flex-wrap:wrap;align-items:center'); var fi = T('input', IN + ';flex:1 1 240px;padding-top:9px'); fi.type = 'file'; fi.required = true; fi.setAttribute('aria-label', 'ফাইল'); var up = T('button', PRI, 'আপলোড'); up.type = 'submit'; fm.appendChild(fi); fm.appendChild(up); var m = T('div', 'font-size:13px;font-weight:600;color:#B91C1C;display:none'); m.setAttribute('role', 'alert'); f.appendChild(fm); f.appendChild(m);
+        var f = card('ফাইল পাঠান (সর্বোচ্চ ১০ MB)'); var fm = T('form', 'display:flex;gap:8px;flex-wrap:wrap;align-items:center'); var fi = T('input', IN + ';flex:1 1 240px;padding-top:9px'); fi.type = 'file'; fi.required = true; fi.setAttribute('aria-label', 'ফাইল'); var up = T('button', PRI, 'আপলোড'); up.type = 'submit'; fm.appendChild(fi); fm.appendChild(up); var m = T('div', 'font-size:14px;font-weight:600;color:#B91C1C;display:none'); m.setAttribute('role', 'alert'); f.appendChild(fm); f.appendChild(m);
         fm.addEventListener('submit', function (e) { e.preventDefault(); var fd = new FormData(); fd.append('file', fi.files[0]); up.disabled = true; fetch('/api/my/files', { method: 'POST', headers: { Accept: 'application/json', Authorization: 'Bearer ' + TOKEN }, body: fd }).then(function (x) { return x.json().then(function (j) { return { ok: x.ok, j: j }; }); }).then(function (x) { up.disabled = false; if (x.ok) go('files'); else { var k = x.j.errors && Object.keys(x.j.errors)[0]; m.textContent = k ? x.j.errors[k][0] : (x.j.message || 'আপলোড হয়নি'); m.style.display = 'block'; } }); });
         b.appendChild(f); b.appendChild(tbl([{ h: 'ফাইল', v: function (x) { return x.name; } }, { h: 'সাইজ', v: function (x) { return Math.round(x.size / 1024) + ' KB'; } }, { h: 'তারিখ', v: function (x) { return dt(x.created_at); } }, { h: 'ডাউনলোড', v: function (x) { var bt = T('button', BTN, 'ডাউনলোড'); bt.type = 'button'; bt.addEventListener('click', function () { blob('/my/files/' + x.id + '/download', x.name); }); return bt; } }], r.j || [])); return b; }); }],
       licenses: ['Products ও Licenses', function () { return api('/my/licenses').then(function (r) { return tbl([{ h: 'প্রোডাক্ট', v: function (x) { return x.product_name; } }, { h: 'লাইসেন্স কী', v: function (x) { return x.license_key; } }, { h: 'অবস্থা', v: function (x) { return x.status; }, s: 1 }, { h: 'মেয়াদ', v: function (x) { return dt(x.expires_on); } }], r.j || []); }); }],
       auto: ['Automation Status', function () { var c = card(); c.appendChild(empty('আপনার অ্যাকাউন্টে কোনো অটোমেশন সক্রিয় নেই।')); return Promise.resolve(c); }],
-      profile: ['Profile', function () { var c = card('প্রোফাইল'); var fm = T('form', 'display:flex;flex-direction:column;gap:12px;max-width:420px'); function fld(id, l, v, ro) { var w = T('div'); var lb = T('label', 'display:block;font-size:13px;font-weight:600;margin-bottom:4px', l); lb.htmlFor = id; var i = T('input', IN); i.id = id; i.value = v || ''; if (ro) { i.readOnly = true; i.style.background = '#F1F5F9'; } w.appendChild(lb); w.appendChild(i); fm.appendChild(w); return i; }
+      profile: ['Profile', function () { var c = card('প্রোফাইল'); var fm = T('form', 'display:flex;flex-direction:column;gap:12px;max-width:420px'); function fld(id, l, v, ro) { var w = T('div'); var lb = T('label', 'display:block;font-size:14px;font-weight:600;margin-bottom:4px', l); lb.htmlFor = id; var i = T('input', IN); i.id = id; i.value = v || ''; if (ro) { i.readOnly = true; i.style.background = '#F1F5F9'; } w.appendChild(lb); w.appendChild(i); fm.appendChild(w); return i; }
         var nm = fld('pf-n', 'নাম', user.name), co = fld('pf-c', 'প্রতিষ্ঠান', user.company); fld('pf-e', 'ইমেইল (বদলাতে সাপোর্টে লিখুন)', user.email, 1); fld('pf-p', 'ফোন', user.phone, 1);
         var m = T('div', 'font-size:14px;font-weight:600;display:none'); m.setAttribute('role', 'status'); var sv = T('button', PRI + ';align-self:flex-start', 'সংরক্ষণ করুন'); sv.type = 'submit'; fm.appendChild(sv); fm.appendChild(m);
         fm.addEventListener('submit', function (e) { e.preventDefault(); api('/me', { method: 'PATCH', body: { name: nm.value.trim(), company: co.value.trim() || null } }).then(function (r) { m.style.display = 'block'; m.style.color = r.ok ? '#166534' : '#B91C1C'; m.textContent = r.ok ? 'সংরক্ষিত হয়েছে।' : 'সংরক্ষণ হয়নি।'; }); });
@@ -288,7 +288,7 @@
     panel.setAttribute('role', 'dialog'); panel.setAttribute('aria-label', 'লাইভ চ্যাট');
     var head = T('div', 'background:#26272B;color:#fff;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;gap:8px');
     head.appendChild(T('div', 'font-weight:700;font-size:15px', 'ModinaLink লাইভ চ্যাট'));
-    var endBtn = T('button', 'background:transparent;color:#fff;border:1px solid #62656D;border-radius:8px;min-height:36px;padding:0 10px;font-size:12px;cursor:pointer;font-family:inherit;display:none', 'চ্যাট শেষ'); endBtn.type = 'button'; head.appendChild(endBtn);
+    var endBtn = T('button', 'background:transparent;color:#fff;border:1px solid #62656D;border-radius:8px;min-height:36px;padding:0 10px;font-size:14px;cursor:pointer;font-family:inherit;display:none', 'চ্যাট শেষ'); endBtn.type = 'button'; head.appendChild(endBtn);
     var body = T('div', 'padding:14px;overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:8px;min-height:120px');
     var foot = T('form', 'display:none;gap:8px;padding:10px;border-top:1px solid #E2E8F0');
     var msgIn = T('input', INP + ';flex:1'); msgIn.type = 'text'; msgIn.placeholder = 'আপনার বার্তা লিখুন…'; msgIn.setAttribute('aria-label', 'বার্তা'); msgIn.maxLength = 2000;
@@ -298,15 +298,15 @@
 
     function bubble(m) {
       var mine = !m.from_staff; var b = T('div', 'max-width:85%;padding:8px 12px;border-radius:12px;font-size:14px;line-height:1.5;word-break:break-word;' + (mine ? 'align-self:flex-end;background:#FF7900;color:#26272B' : 'align-self:flex-start;background:#F1F5F9;color:#0F172A'), m.body);
-      b.appendChild(T('div', 'font-size:11px;opacity:.7;margin-top:2px', (mine ? 'আপনি' : 'ModinaLink টিম') + ' · ' + dtt(m.created_at))); b.setAttribute('data-id', m.id); return b;
+      b.appendChild(T('div', 'font-size:14px;opacity:.7;margin-top:2px', (mine ? 'আপনি' : 'ModinaLink টিম') + ' · ' + dtt(m.created_at))); b.setAttribute('data-id', m.id); return b;
     }
     function startForm() {
       body.textContent = ''; foot.style.display = 'none'; endBtn.style.display = 'none';
       body.appendChild(T('div', 'font-size:14px;line-height:1.6;color:#475569', 'চ্যাট শুরু করতে আপনার মোবাইল নম্বর ও ইমেইল দিন। আমাদের টিম এখানেই উত্তর দেবে।'));
       var f = T('form', 'display:flex;flex-direction:column;gap:10px');
-      function field(id, label, type, val, ph) { var w = T('div'); var l = T('label', 'display:block;font-size:13px;font-weight:600;margin-bottom:4px', label); l.htmlFor = id; var i = T('input', INP); i.id = id; i.type = type; i.value = val || ''; i.required = true; if (ph) i.placeholder = ph; w.appendChild(l); w.appendChild(i); f.appendChild(w); return i; }
+      function field(id, label, type, val, ph) { var w = T('div'); var l = T('label', 'display:block;font-size:14px;font-weight:600;margin-bottom:4px', label); l.htmlFor = id; var i = T('input', INP); i.id = id; i.type = type; i.value = val || ''; i.required = true; if (ph) i.placeholder = ph; w.appendChild(l); w.appendChild(i); f.appendChild(w); return i; }
       var ph = field('mlc-phone', 'মোবাইল নম্বর *', 'tel', user.phone, '01XXXXXXXXX'), em = field('mlc-email', 'ইমেইল *', 'email', user.email, 'name@example.com');
-      var err = T('div', 'font-size:13px;color:#B91C1C;font-weight:600;display:none'); err.setAttribute('role', 'alert'); f.appendChild(err);
+      var err = T('div', 'font-size:14px;color:#B91C1C;font-weight:600;display:none'); err.setAttribute('role', 'alert'); f.appendChild(err);
       var go = T('button', PRI, 'চ্যাট শুরু করুন'); go.type = 'submit'; f.appendChild(go); body.appendChild(f);
       f.addEventListener('submit', function (e) {
         e.preventDefault(); err.style.display = 'none'; go.disabled = true;
@@ -319,7 +319,7 @@
     }
     function chatView(msgs) {
       body.textContent = ''; foot.style.display = 'flex'; endBtn.style.display = 'inline-block';
-      body.appendChild(T('div', 'font-size:12px;color:#475569;text-align:center', 'আপনার নম্বর: ' + conv.phone + ' · ইমেইল: ' + conv.email));
+      body.appendChild(T('div', 'font-size:14px;color:#475569;text-align:center', 'আপনার নম্বর: ' + conv.phone + ' · ইমেইল: ' + conv.email));
       add(msgs); msgIn.focus(); poll();
     }
     function add(msgs) {
@@ -387,11 +387,11 @@
         var h = leaf('div', name); if (!h) return; var col = h.parentNode; var tpl = h.nextElementSibling; if (!tpl) return;
         all(':scope > div', col).slice(1).forEach(function (x) { x.remove(); });
         var mine = tickets.filter(function (t) { return cols[name].indexOf(t.status) >= 0; }).slice(0, 5);
-        if (!mine.length) { var e = document.createElement('div'); e.style.cssText = 'font-size:13px;color:#475569;padding:6px 2px'; e.textContent = 'কোনো টিকেট নেই'; col.appendChild(e); }
+        if (!mine.length) { var e = document.createElement('div'); e.style.cssText = 'font-size:14px;color:#475569;padding:6px 2px'; e.textContent = 'কোনো টিকেট নেই'; col.appendChild(e); }
         mine.forEach(function (t) {
           var c = document.createElement('a'); c.href = '/admin/tickets/' + t.id; c.style.cssText = tpl.getAttribute('style') + ';display:block;color:inherit;text-decoration:none';
           var n = document.createElement('div'); n.style.fontWeight = '700'; n.textContent = t.number;
-          var s = document.createElement('div'); s.style.cssText = 'font-size:12px;color:#475569;margin-top:2px'; s.textContent = (t.user && (t.user.company || t.user.name) || '') + ' · ' + t.title + ' · ' + t.status;
+          var s = document.createElement('div'); s.style.cssText = 'font-size:14px;color:#475569;margin-top:2px'; s.textContent = (t.user && (t.user.company || t.user.name) || '') + ' · ' + t.title + ' · ' + t.status;
           c.appendChild(n); c.appendChild(s); col.appendChild(c);
         });
       });
@@ -447,12 +447,12 @@
     var dash = all(':scope > *', col).filter(function (x) { return x !== header; });
     var view = document.createElement('div'); view.style.cssText = 'display:none;flex-direction:column;gap:16px'; col.appendChild(view);
     var CARD = 'background:#FFFFFF;border:1px solid #E2E8F0;border-radius:16px;padding:24px;overflow-x:auto';
-    var BTN = 'border:1px solid #CBD5E1;border-radius:10px;padding:0 12px;min-height:36px;font-size:13px;font-weight:600;background:#fff;color:#0F172A;cursor:pointer;font-family:inherit';
+    var BTN = 'border:1px solid #CBD5E1;border-radius:10px;padding:0 12px;min-height:36px;font-size:14px;font-weight:600;background:#fff;color:#0F172A;cursor:pointer;font-family:inherit';
     function T(tag, css, text) { var e = document.createElement(tag); if (css) e.style.cssText = css; if (text != null) e.textContent = text; return e; }
     function table(cols, data, actions) {
       var card = T('div', CARD);
       if (!data.length) { card.appendChild(T('div', 'font-size:14px;color:#475569', 'কোনো রেকর্ড নেই।')); return card; }
-      var g = T('div', 'display:grid;grid-template-columns:repeat(' + (cols.length + (actions ? 1 : 0)) + ',minmax(110px,1fr));font-size:13px;min-width:' + ((cols.length + 1) * 120) + 'px');
+      var g = T('div', 'display:grid;grid-template-columns:repeat(' + (cols.length + (actions ? 1 : 0)) + ',minmax(110px,1fr));font-size:14px;min-width:' + ((cols.length + 1) * 120) + 'px');
       cols.concat(actions ? [{ h: 'কাজ' }] : []).forEach(function (c) { g.appendChild(T('div', 'padding:10px 12px;font-weight:700;color:#475569;border-bottom:1px solid #E2E8F0', c.h)); });
       data.forEach(function (row) {
         cols.forEach(function (c) { var v = c.v(row); var cell = T('div', 'padding:12px;border-bottom:1px solid #F1F5F9;word-break:break-word'); if (c.s) { cell.appendChild(T('span', 'display:inline-flex;gap:6px;align-items:center;font-weight:600')); cell.firstChild.appendChild(T('span', 'width:8px;height:8px;border-radius:999px;background:' + (DOT[v] || '#94A3B8'))); cell.firstChild.appendChild(document.createTextNode(v)); } else cell.textContent = v; g.appendChild(cell); });
@@ -499,7 +499,7 @@
             data.forEach(function (c) {
               var b = T('button', 'text-align:left;border:1px solid ' + (cur === c.id ? '#FF7900' : '#E2E8F0') + ';border-radius:12px;padding:10px 12px;background:#fff;cursor:pointer;font-family:inherit;min-height:44px');
               b.type = 'button'; b.appendChild(T('div', 'font-weight:700;font-size:14px', (c.user ? (c.user.company || c.user.name) : 'গ্রাহক') + (c.status === 'closed' ? ' (শেষ)' : '')));
-              b.appendChild(T('div', 'font-size:12px;color:#475569', c.phone + ' · ' + dtt(c.last_message_at)));
+              b.appendChild(T('div', 'font-size:14px;color:#475569', c.phone + ' · ' + dtt(c.last_message_at)));
               b.addEventListener('click', function () { openConv(c.id); }); list.appendChild(b);
             });
           });
@@ -509,9 +509,9 @@
           api('/admin/chat/' + id).then(function (r) {
             var c = r.j.conversation; pane.textContent = '';
             pane.appendChild(T('div', 'font-size:16px;font-weight:700', (c.user ? c.user.name : '') + (c.user && c.user.company ? ' · ' + c.user.company : '')));
-            pane.appendChild(T('div', 'font-size:13px;color:#475569', 'ফোন: ' + c.phone + ' · ইমেইল: ' + c.email));
+            pane.appendChild(T('div', 'font-size:14px;color:#475569', 'ফোন: ' + c.phone + ' · ইমেইল: ' + c.email));
             var box = T('div', 'flex:1;min-height:220px;max-height:420px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;border:1px solid #F1F5F9;border-radius:12px;padding:12px'); pane.appendChild(box);
-            function add(ms) { (ms || []).forEach(function (m) { if (m.id > last) { last = m.id; var b = T('div', 'max-width:80%;padding:8px 12px;border-radius:12px;font-size:14px;word-break:break-word;' + (m.from_staff ? 'align-self:flex-end;background:#26272B;color:#fff' : 'align-self:flex-start;background:#F1F5F9'), m.body); b.appendChild(T('div', 'font-size:11px;opacity:.7;margin-top:2px', (m.from_staff ? 'টিম' : 'গ্রাহক') + ' · ' + dtt(m.created_at))); box.appendChild(b); } }); box.scrollTop = box.scrollHeight; }
+            function add(ms) { (ms || []).forEach(function (m) { if (m.id > last) { last = m.id; var b = T('div', 'max-width:80%;padding:8px 12px;border-radius:12px;font-size:14px;word-break:break-word;' + (m.from_staff ? 'align-self:flex-end;background:#26272B;color:#fff' : 'align-self:flex-start;background:#F1F5F9'), m.body); b.appendChild(T('div', 'font-size:14px;opacity:.7;margin-top:2px', (m.from_staff ? 'টিম' : 'গ্রাহক') + ' · ' + dtt(m.created_at))); box.appendChild(b); } }); box.scrollTop = box.scrollHeight; }
             add(r.j.messages);
             if (c.status === 'open') {
               var f = T('form', 'display:flex;gap:8px'); var i = T('input', 'flex:1;height:44px;border:1px solid #CBD5E1;border-radius:12px;padding:0 12px;font-size:14px;font-family:inherit'); i.type = 'text'; i.placeholder = 'উত্তর লিখুন…'; i.setAttribute('aria-label', 'উত্তর');
@@ -519,7 +519,7 @@
               f.addEventListener('submit', function (e) { e.preventDefault(); var t = i.value.trim(); if (!t) return; api('/admin/chat/' + id + '/messages', { method: 'POST', body: { body: t } }).then(function (x) { sb.disabled = false; if (x.ok) { i.value = ''; add([x.j]); } }); });
               pane.appendChild(f);
               var cl = btn('চ্যাট শেষ করুন', function () { api('/admin/chat/' + id + '/close', { method: 'POST' }).then(function () { drawList(); openConv(id); }); }); cl.style.alignSelf = 'flex-start'; pane.appendChild(cl);
-            } else pane.appendChild(T('div', 'font-size:13px;color:#475569', 'এই চ্যাট শেষ হয়েছে।'));
+            } else pane.appendChild(T('div', 'font-size:14px;color:#475569', 'এই চ্যাট শেষ হয়েছে।'));
           });
         }
         drawList();
@@ -548,14 +548,14 @@
       var card = T('form', CARD + ';display:flex;flex-direction:column;gap:12px'); card.appendChild(T('div', 'font-size:16px;font-weight:700', title));
       var grid = T('div', 'display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px'); card.appendChild(grid); var ctl = {};
       fields.forEach(function (f, n) {
-        var w = T('div'); var id = 'f-' + title.replace(/\W/g, '') + n; var l = T('label', 'display:block;font-size:13px;font-weight:600;margin-bottom:4px', f.l + (f.req ? ' *' : '')); l.htmlFor = id; w.appendChild(l);
+        var w = T('div'); var id = 'f-' + title.replace(/\W/g, '') + n; var l = T('label', 'display:block;font-size:14px;font-weight:600;margin-bottom:4px', f.l + (f.req ? ' *' : '')); l.htmlFor = id; w.appendChild(l);
         var i;
         if (f.lk || f.o) { i = T('select', IN); var o0 = T('option', null, f.req ? 'বাছাই করুন' : '— নেই —'); o0.value = ''; i.appendChild(o0); (f.lk ? lk[f.lk] : f.o.map(function (x) { return { v: x, l: x }; })).forEach(function (o) { var op = T('option', null, o.l); op.value = o.v; i.appendChild(op); }); }
         else if (f.t === 'textarea') { i = T('textarea', IN + ';min-height:88px;padding:10px 12px'); }
         else { i = T('input', IN); i.type = f.t || 'text'; }
         i.id = id; if (f.req) i.required = true; ctl[f.k] = i; w.appendChild(i); grid.appendChild(w);
       });
-      var err = T('div', 'font-size:13px;font-weight:600;color:#B91C1C;display:none'); err.setAttribute('role', 'alert'); card.appendChild(err);
+      var err = T('div', 'font-size:14px;font-weight:600;color:#B91C1C;display:none'); err.setAttribute('role', 'alert'); card.appendChild(err);
       var go = T('button', 'background:#FF7900;color:#26272B;border:0;border-radius:12px;min-height:44px;padding:0 18px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;align-self:flex-start', 'সংরক্ষণ করুন'); go.type = 'submit'; card.appendChild(go);
       card.addEventListener('submit', function (e) {
         e.preventDefault(); err.style.display = 'none'; var body = {};
@@ -570,7 +570,7 @@
           var box = T('div', 'display:flex;flex-direction:column;gap:16px');
           box.appendChild(formCard('নতুন যোগ করুন', fields, x[1], function (body) { return api('/admin/r/' + res, { method: 'POST', body: body }).then(function (r) { if (r.ok) show(reloadKey || res); return r; }); }));
           box.appendChild(table(cols, x[0].j || [], statuses ? function (row, c) {
-            var sel = T('select', IN + ';min-height:36px;font-size:13px;width:auto'); statuses.forEach(function (st) { var o = T('option', null, st); o.value = st; if (row.status === st) o.selected = true; sel.appendChild(o); });
+            var sel = T('select', IN + ';min-height:36px;font-size:14px;width:auto'); statuses.forEach(function (st) { var o = T('option', null, st); o.value = st; if (row.status === st) o.selected = true; sel.appendChild(o); });
             sel.setAttribute('aria-label', 'অবস্থা পরিবর্তন'); sel.addEventListener('change', function () { api('/admin/r/' + res + '/' + row.id, { method: 'PUT', body: { status: sel.value } }).then(function (r) { if (!r.ok) alert_('পরিবর্তন হয়নি'); else show(reloadKey || res); }); }); c.appendChild(sel);
           } : null));
           return box;
@@ -611,10 +611,10 @@
         var box = T('div', 'display:flex;flex-direction:column;gap:16px');
         var f = T('form', CARD + ';display:flex;flex-direction:column;gap:12px'); f.appendChild(T('div', 'font-size:16px;font-weight:700', 'গ্রাহকের জন্য ফাইল আপলোড (সর্বোচ্চ ১০ MB)'));
         var g = T('div', 'display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px'); f.appendChild(g);
-        function sel(id, label, list, req) { var w = T('div'); var l = T('label', 'display:block;font-size:13px;font-weight:600;margin-bottom:4px', label); l.htmlFor = id; var i = T('select', IN); i.id = id; var o0 = T('option', null, req ? 'বাছাই করুন' : '— নেই —'); o0.value = ''; i.appendChild(o0); list.forEach(function (o) { var op = T('option', null, o.l); op.value = o.v; i.appendChild(op); }); i.required = !!req; w.appendChild(l); w.appendChild(i); g.appendChild(w); return i; }
+        function sel(id, label, list, req) { var w = T('div'); var l = T('label', 'display:block;font-size:14px;font-weight:600;margin-bottom:4px', label); l.htmlFor = id; var i = T('select', IN); i.id = id; var o0 = T('option', null, req ? 'বাছাই করুন' : '— নেই —'); o0.value = ''; i.appendChild(o0); list.forEach(function (o) { var op = T('option', null, o.l); op.value = o.v; i.appendChild(op); }); i.required = !!req; w.appendChild(l); w.appendChild(i); g.appendChild(w); return i; }
         var su = sel('fu', 'গ্রাহক *', x[1].users, 1), sp = sel('fp', 'প্রজেক্ট', x[1].projects, 0);
-        var w = T('div'); var l = T('label', 'display:block;font-size:13px;font-weight:600;margin-bottom:4px', 'ফাইল *'); l.htmlFor = 'ff'; var fi = T('input', IN + ';padding-top:9px'); fi.type = 'file'; fi.id = 'ff'; fi.required = true; w.appendChild(l); w.appendChild(fi); g.appendChild(w);
-        var err = T('div', 'font-size:13px;font-weight:600;color:#B91C1C;display:none'); err.setAttribute('role', 'alert'); f.appendChild(err);
+        var w = T('div'); var l = T('label', 'display:block;font-size:14px;font-weight:600;margin-bottom:4px', 'ফাইল *'); l.htmlFor = 'ff'; var fi = T('input', IN + ';padding-top:9px'); fi.type = 'file'; fi.id = 'ff'; fi.required = true; w.appendChild(l); w.appendChild(fi); g.appendChild(w);
+        var err = T('div', 'font-size:14px;font-weight:600;color:#B91C1C;display:none'); err.setAttribute('role', 'alert'); f.appendChild(err);
         var go = T('button', 'background:#FF7900;color:#26272B;border:0;border-radius:12px;min-height:44px;padding:0 18px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;align-self:flex-start', 'আপলোড'); go.type = 'submit'; f.appendChild(go);
         f.addEventListener('submit', function (e) { e.preventDefault(); err.style.display = 'none'; var fd = new FormData(); fd.append('user_id', su.value); if (sp.value) fd.append('project_id', sp.value); fd.append('file', fi.files[0]); go.disabled = true;
           fetch('/api/admin/files', { method: 'POST', headers: { Accept: 'application/json', Authorization: 'Bearer ' + TOKEN }, body: fd }).then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); }).then(function (r) { go.disabled = false; if (r.ok) show('files'); else { var k = r.j.errors && Object.keys(r.j.errors)[0]; err.textContent = k ? r.j.errors[k][0] : (r.j.message || 'আপলোড হয়নি'); err.style.display = 'block'; } }); });
