@@ -84,6 +84,7 @@
     var me = api('/me'), tk = api('/tickets'), iv = api('/invoices'), sb = api('/subscriptions');
     Promise.all([me, tk, iv, sb]).then(function (r) {
       var user = (r[0].j && r[0].j.user) || {}, tickets = rows(r[1]), invs = rows(r[2]), subs = rows(r[3]);
+      chatWidget(user);
       var sub = leaf('div', 'আপনার অথবা অনুমোদিত প্রতিষ্ঠানের তথ্য। নিচের সব তথ্য নমুনা (Sample data)।') || byText('div', 'আপনার অথবা অনুমোদিত প্রতিষ্ঠানের তথ্য', true);
       if (sub) sub.textContent = (user.name || '') + (user.company ? ' · ' + user.company : '') + ' — আপনার অ্যাকাউন্টের আসল তথ্য। প্রজেক্ট, মাইলস্টোন ও ফাইল মডিউল এখনো চালু হয়নি।';
 
@@ -194,6 +195,81 @@
       });
     }
     press(send, function () { submit(false); }); press(human, function () { submit(true); });
+  }
+
+  /* ---------------------------- PORTAL: live chat ---------------------------- */
+  function chatWidget(user) {
+    function T(tag, css, text) { var e = document.createElement(tag); if (css) e.style.cssText = css; if (text != null) e.textContent = text; return e; }
+    var INP = 'width:100%;box-sizing:border-box;height:44px;border:1px solid #CBD5E1;border-radius:12px;padding:0 12px;font-size:14px;font-family:inherit';
+    var PRI = 'background:#FF7900;color:#26272B;border:0;border-radius:12px;min-height:44px;padding:0 16px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit';
+    var open = false, timer = null, lastId = 0, conv = null;
+    var fab = T('button', PRI + ';position:fixed;right:20px;bottom:20px;z-index:50;box-shadow:0 4px 16px rgba(0,0,0,.18)', 'লাইভ চ্যাট'); fab.type = 'button'; fab.setAttribute('aria-expanded', 'false');
+    var panel = T('div', 'position:fixed;right:20px;bottom:76px;z-index:50;width:min(360px,calc(100vw - 32px));max-height:min(520px,calc(100vh - 110px));background:#fff;border:1px solid #E2E8F0;border-radius:16px;box-shadow:0 8px 28px rgba(0,0,0,.18);display:none;flex-direction:column;overflow:hidden');
+    panel.setAttribute('role', 'dialog'); panel.setAttribute('aria-label', 'লাইভ চ্যাট');
+    var head = T('div', 'background:#26272B;color:#fff;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;gap:8px');
+    head.appendChild(T('div', 'font-weight:700;font-size:15px', 'ModinaLink লাইভ চ্যাট'));
+    var endBtn = T('button', 'background:transparent;color:#fff;border:1px solid #62656D;border-radius:8px;min-height:36px;padding:0 10px;font-size:12px;cursor:pointer;font-family:inherit;display:none', 'চ্যাট শেষ'); endBtn.type = 'button'; head.appendChild(endBtn);
+    var body = T('div', 'padding:14px;overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:8px;min-height:120px');
+    var foot = T('form', 'display:none;gap:8px;padding:10px;border-top:1px solid #E2E8F0');
+    var msgIn = T('input', INP + ';flex:1'); msgIn.type = 'text'; msgIn.placeholder = 'আপনার বার্তা লিখুন…'; msgIn.setAttribute('aria-label', 'বার্তা'); msgIn.maxLength = 2000;
+    var sendB = T('button', PRI, 'পাঠান'); sendB.type = 'submit'; foot.appendChild(msgIn); foot.appendChild(sendB);
+    panel.appendChild(head); panel.appendChild(body); panel.appendChild(foot);
+    document.body.appendChild(panel); document.body.appendChild(fab);
+
+    function bubble(m) {
+      var mine = !m.from_staff; var b = T('div', 'max-width:85%;padding:8px 12px;border-radius:12px;font-size:14px;line-height:1.5;word-break:break-word;' + (mine ? 'align-self:flex-end;background:#FF7900;color:#26272B' : 'align-self:flex-start;background:#F1F5F9;color:#0F172A'), m.body);
+      b.appendChild(T('div', 'font-size:11px;opacity:.7;margin-top:2px', (mine ? 'আপনি' : 'ModinaLink টিম') + ' · ' + dtt(m.created_at))); b.setAttribute('data-id', m.id); return b;
+    }
+    function startForm() {
+      body.textContent = ''; foot.style.display = 'none'; endBtn.style.display = 'none';
+      body.appendChild(T('div', 'font-size:14px;line-height:1.6;color:#475569', 'চ্যাট শুরু করতে আপনার মোবাইল নম্বর ও ইমেইল দিন। আমাদের টিম এখানেই উত্তর দেবে।'));
+      var f = T('form', 'display:flex;flex-direction:column;gap:10px');
+      function field(id, label, type, val, ph) { var w = T('div'); var l = T('label', 'display:block;font-size:13px;font-weight:600;margin-bottom:4px', label); l.htmlFor = id; var i = T('input', INP); i.id = id; i.type = type; i.value = val || ''; i.required = true; if (ph) i.placeholder = ph; w.appendChild(l); w.appendChild(i); f.appendChild(w); return i; }
+      var ph = field('mlc-phone', 'মোবাইল নম্বর *', 'tel', user.phone, '01XXXXXXXXX'), em = field('mlc-email', 'ইমেইল *', 'email', user.email, 'name@example.com');
+      var err = T('div', 'font-size:13px;color:#B91C1C;font-weight:600;display:none'); err.setAttribute('role', 'alert'); f.appendChild(err);
+      var go = T('button', PRI, 'চ্যাট শুরু করুন'); go.type = 'submit'; f.appendChild(go); body.appendChild(f);
+      f.addEventListener('submit', function (e) {
+        e.preventDefault(); err.style.display = 'none'; go.disabled = true;
+        api('/chat/start', { method: 'POST', body: { phone: ph.value.trim(), email: em.value.trim() } }).then(function (r) {
+          go.disabled = false;
+          if (r.ok) { conv = r.j.conversation; lastId = 0; chatView(r.j.messages); }
+          else { var j = r.j || {}, k = j.errors && Object.keys(j.errors)[0]; err.textContent = k ? j.errors[k][0] : (j.message || 'শুরু করা যায়নি।'); err.style.display = 'block'; }
+        });
+      });
+    }
+    function chatView(msgs) {
+      body.textContent = ''; foot.style.display = 'flex'; endBtn.style.display = 'inline-block';
+      body.appendChild(T('div', 'font-size:12px;color:#475569;text-align:center', 'আপনার নম্বর: ' + conv.phone + ' · ইমেইল: ' + conv.email));
+      add(msgs); msgIn.focus(); poll();
+    }
+    function add(msgs) {
+      var atBottom = body.scrollHeight - body.scrollTop - body.clientHeight < 60;
+      (msgs || []).forEach(function (m) { if (m.id > lastId) { lastId = m.id; body.appendChild(bubble(m)); } });
+      if (atBottom) body.scrollTop = body.scrollHeight;
+    }
+    function poll() {
+      clearInterval(timer);
+      timer = setInterval(function () {
+        if (!open || !conv) return;
+        api('/chat?after_id=' + lastId).then(function (r) {
+          if (!r.j.conversation) { conv = null; startForm(); return; }
+          add(r.j.messages);
+        }).catch(function () {});
+      }, 3000);
+    }
+    function load() {
+      body.textContent = 'লোড হচ্ছে…';
+      api('/chat').then(function (r) { if (r.j.conversation) { conv = r.j.conversation; lastId = 0; chatView(r.j.messages); } else { conv = null; startForm(); } });
+    }
+    fab.addEventListener('click', function () {
+      open = !open; panel.style.display = open ? 'flex' : 'none'; fab.setAttribute('aria-expanded', open ? 'true' : 'false'); fab.textContent = open ? 'বন্ধ করুন' : 'লাইভ চ্যাট';
+      if (open) load(); else clearInterval(timer);
+    });
+    foot.addEventListener('submit', function (e) {
+      e.preventDefault(); var t = msgIn.value.trim(); if (!t) return; sendB.disabled = true;
+      api('/chat/messages', { method: 'POST', body: { body: t } }).then(function (r) { sendB.disabled = false; if (r.ok) { msgIn.value = ''; add([r.j]); } });
+    });
+    endBtn.addEventListener('click', function () { api('/chat/close', { method: 'POST' }).then(function () { conv = null; startForm(); }); });
   }
 
   /* ------------------------------- ADMIN ------------------------------ */
@@ -323,19 +399,67 @@
       inquiries: { t: 'Inquiries', load: function () { return api('/admin/leads').then(function (r) { return table([{ h: 'নাম', v: function (l) { return l.name; } }, { h: 'যোগাযোগ', v: function (l) { return [l.phone, l.email].filter(Boolean).join(' · ') || '—'; } }, { h: 'আগ্রহ', v: function (l) { return l.interest || '—'; } }, { h: 'বার্তা', v: function (l) { return l.message || '—'; } }, { h: 'অবস্থা', v: function (l) { return l.status; }, s: 1 }, { h: 'তারিখ', v: function (l) { return dt(l.created_at); } }], rows(r), function (l, c) {
         ['contacted', 'won', 'lost'].forEach(function (st) { if (l.status !== st) c.appendChild(btn(st, function () { act('/admin/leads/' + l.id, { status: st }, 'PATCH', '', 'inquiries'); })); });
       }); }); } },
+
+      chat: { t: 'Live Chat', load: function () {
+        var wrap = T('div', 'display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start');
+        var list = T('div', CARD + ';flex:1 1 260px;max-width:340px;display:flex;flex-direction:column;gap:8px;padding:16px');
+        var pane = T('div', CARD + ';flex:2 1 360px;display:flex;flex-direction:column;gap:10px;min-height:360px');
+        wrap.appendChild(list); wrap.appendChild(pane);
+        var cur = null, last = 0;
+        function drawList() {
+          api('/admin/chat').then(function (r) {
+            list.textContent = ''; list.appendChild(T('div', 'font-size:15px;font-weight:700', 'চ্যাট তালিকা'));
+            var data = Array.isArray(r.j) ? r.j : [];
+            if (!data.length) list.appendChild(T('div', 'font-size:14px;color:#475569', 'এখনো কোনো চ্যাট নেই।'));
+            data.forEach(function (c) {
+              var b = T('button', 'text-align:left;border:1px solid ' + (cur === c.id ? '#FF7900' : '#E2E8F0') + ';border-radius:12px;padding:10px 12px;background:#fff;cursor:pointer;font-family:inherit;min-height:44px');
+              b.type = 'button'; b.appendChild(T('div', 'font-weight:700;font-size:14px', (c.user ? (c.user.company || c.user.name) : 'গ্রাহক') + (c.status === 'closed' ? ' (শেষ)' : '')));
+              b.appendChild(T('div', 'font-size:12px;color:#475569', c.phone + ' · ' + dtt(c.last_message_at)));
+              b.addEventListener('click', function () { openConv(c.id); }); list.appendChild(b);
+            });
+          });
+        }
+        function openConv(id) {
+          cur = id; last = 0; pane.textContent = 'লোড হচ্ছে…';
+          api('/admin/chat/' + id).then(function (r) {
+            var c = r.j.conversation; pane.textContent = '';
+            pane.appendChild(T('div', 'font-size:16px;font-weight:700', (c.user ? c.user.name : '') + (c.user && c.user.company ? ' · ' + c.user.company : '')));
+            pane.appendChild(T('div', 'font-size:13px;color:#475569', 'ফোন: ' + c.phone + ' · ইমেইল: ' + c.email));
+            var box = T('div', 'flex:1;min-height:220px;max-height:420px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;border:1px solid #F1F5F9;border-radius:12px;padding:12px'); pane.appendChild(box);
+            function add(ms) { (ms || []).forEach(function (m) { if (m.id > last) { last = m.id; var b = T('div', 'max-width:80%;padding:8px 12px;border-radius:12px;font-size:14px;word-break:break-word;' + (m.from_staff ? 'align-self:flex-end;background:#26272B;color:#fff' : 'align-self:flex-start;background:#F1F5F9'), m.body); b.appendChild(T('div', 'font-size:11px;opacity:.7;margin-top:2px', (m.from_staff ? 'টিম' : 'গ্রাহক') + ' · ' + dtt(m.created_at))); box.appendChild(b); } }); box.scrollTop = box.scrollHeight; }
+            add(r.j.messages);
+            if (c.status === 'open') {
+              var f = T('form', 'display:flex;gap:8px'); var i = T('input', 'flex:1;height:44px;border:1px solid #CBD5E1;border-radius:12px;padding:0 12px;font-size:14px;font-family:inherit'); i.type = 'text'; i.placeholder = 'উত্তর লিখুন…'; i.setAttribute('aria-label', 'উত্তর');
+              var sb = T('button', BTN + ';min-height:44px', 'পাঠান'); sb.type = 'submit'; f.appendChild(i); f.appendChild(sb);
+              f.addEventListener('submit', function (e) { e.preventDefault(); var t = i.value.trim(); if (!t) return; api('/admin/chat/' + id + '/messages', { method: 'POST', body: { body: t } }).then(function (x) { sb.disabled = false; if (x.ok) { i.value = ''; add([x.j]); } }); });
+              pane.appendChild(f);
+              var cl = btn('চ্যাট শেষ করুন', function () { api('/admin/chat/' + id + '/close', { method: 'POST' }).then(function () { drawList(); openConv(id); }); }); cl.style.alignSelf = 'flex-start'; pane.appendChild(cl);
+            } else pane.appendChild(T('div', 'font-size:13px;color:#475569', 'এই চ্যাট শেষ হয়েছে।'));
+          });
+        }
+        drawList();
+        view._timer = setInterval(function () {
+          drawList();
+          if (cur) api('/admin/chat/' + cur + '?after_id=' + last).then(function (r) { var ms = r.j.messages || []; if (ms.length) openConv(cur); }).catch(function () {});
+        }, 5000);
+        return Promise.resolve(wrap).then(function (n) { return n; });
+      } },
       services: { t: 'Services ও Price List', load: function () { return fetch('/api/prices', { headers: { Accept: 'application/json' } }).then(function (r) { return r.json(); }).then(function (j) { var it = (j && j.items) || []; var cols = it[0] ? Object.keys(it[0]).filter(function (k) { return !/^(id|created_at|updated_at|sort|is_active)$/.test(k); }).slice(0, 6) : []; return table(cols.map(function (k) { return { h: k, v: function (x) { var v = x[k]; return v == null ? '—' : typeof v === 'object' ? JSON.stringify(v) : String(v); } }; }), it); }); } }
     };
-    var MAP = { Customers: 'customers', Invoices: 'invoices', Payments: 'payments', Renewals: 'renewals', 'Support Tickets': 'tickets', Inquiries: 'inquiries', Services: 'services', Products: 'services' };
+    var MAP = { Customers: 'customers', Invoices: 'invoices', Payments: 'payments', Renewals: 'renewals', 'Support Tickets': 'tickets', Inquiries: 'inquiries', 'Live Chat': 'chat', Services: 'services', Products: 'services' };
     var SOON = ['Quotes', 'Orders', 'Projects', 'Milestones', 'Automation Runs', 'Content'];
     function setActive(a) { all('a').forEach(function (x) { if (x.getAttribute('data-nav')) x.style.fontWeight = x === a ? '700' : ''; }); }
     function show(key, a) {
+      clearInterval(view._timer);
       var d = V[key]; h1.textContent = d ? d.t : key; setActive(a);
       dash.forEach(function (x) { x.style.display = 'none'; }); view.style.display = 'flex'; view.textContent = '';
       view.appendChild(T('div', 'font-size:14px;color:#475569', 'লোড হচ্ছে…'));
       if (!d) { view.textContent = ''; var c = T('div', CARD); c.appendChild(T('div', 'font-size:17px;font-weight:700', key)); c.appendChild(T('div', 'font-size:14px;color:#475569;line-height:1.7;margin-top:8px', 'এই মডিউলের ব্যাকএন্ড এখনো তৈরি হয়নি (পরের ধাপে আসছে)। তৈরি হলে এখানে আসল রেকর্ড, ফিল্টার ও কাজ থাকবে।')); view.appendChild(c); return; }
       d.load().then(function (node) { view.textContent = ''; view.appendChild(node); }).catch(function () { view.textContent = 'লোড করা যায়নি।'; });
     }
-    function showDash(a) { h1.textContent = 'ড্যাশবোর্ড'; setActive(a); view.style.display = 'none'; dash.forEach(function (x) { x.style.display = ''; }); }
+    function showDash(a) { clearInterval(view._timer); h1.textContent = 'ড্যাশবোর্ড'; setActive(a); view.style.display = 'none'; dash.forEach(function (x) { x.style.display = ''; }); }
+    var stNav = all('a').filter(function (a) { return norm(a.textContent) === 'Support Tickets'; })[0];
+    if (stNav) { var lc = stNav.cloneNode(true); lc.textContent = 'Live Chat'; lc.setAttribute('href', '#top'); stNav.parentNode.insertBefore(lc, stNav.nextSibling); }
     all('a').forEach(function (a) {
       var t = norm(a.textContent);
       var key = MAP[t] || (SOON.indexOf(t) >= 0 ? t : null);

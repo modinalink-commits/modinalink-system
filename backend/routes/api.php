@@ -5,7 +5,9 @@ use App\Http\Controllers\Admin\IntegrationController;
 use App\Http\Controllers\Admin\ManageController;
 use App\Http\Controllers\Admin\TicketAdminController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\Admin\ChatAdminController;
 use App\Http\Controllers\BillingController;
+use App\Http\Controllers\ChatController;
 use App\Http\Controllers\PublicController;
 use App\Http\Controllers\TicketController;
 use App\Http\Controllers\Webhooks\WebhookController;
@@ -48,6 +50,11 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
     Route::get('/subscriptions', [BillingController::class, 'subscriptions']);
     Route::get('/me/grants', [BillingController::class, 'grants']);
 
+    Route::get('/chat', [ChatController::class, 'show']);
+    Route::post('/chat/start', [ChatController::class, 'start']);
+    Route::post('/chat/messages', [ChatController::class, 'send']);
+    Route::post('/chat/close', [ChatController::class, 'close']);
+
     // Staff and admin
     Route::prefix('admin')->middleware('role:staff,admin')->group(function () {
         Route::get('/tickets', [TicketAdminController::class, 'index']);
@@ -65,6 +72,11 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
         Route::post('/payments/{id}/reject', [BillingAdminController::class, 'rejectPayment']);
         Route::get('/subscriptions', [BillingAdminController::class, 'subscriptions']);
         Route::post('/subscriptions', [BillingAdminController::class, 'createSubscription']);
+
+        Route::get('/chat', [ChatAdminController::class, 'index']);
+        Route::get('/chat/{id}', [ChatAdminController::class, 'show']);
+        Route::post('/chat/{id}/messages', [ChatAdminController::class, 'send']);
+        Route::post('/chat/{id}/close', [ChatAdminController::class, 'close']);
 
         Route::get('/users', [ManageController::class, 'users']);
         Route::post('/users/{id}/grant', [ManageController::class, 'grant']);
